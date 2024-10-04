@@ -1,8 +1,9 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import solid from "eslint-plugin-solid/configs/typescript";
 import * as tsParser from "@typescript-eslint/parser";
+import perfectionist from "eslint-plugin-perfectionist";
+import solid from "eslint-plugin-solid/configs/typescript";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default [
   { files: ["**/*.{ts,tsx}"] },
@@ -17,6 +18,14 @@ export default [
       parserOptions: {
         project: "tsconfig.app.json",
       },
+    },
+  },
+  {
+    plugins: {
+      perfectionist,
+    },
+    rules: {
+      "perfectionist/sort-imports": "error",
     },
   },
 ];
