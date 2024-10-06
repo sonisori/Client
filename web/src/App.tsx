@@ -1,24 +1,22 @@
 import { Router } from "@solidjs/router";
 
-import { SignIn } from "./screen/SignIn";
-import { Splash } from "./screen/Splash";
 import { ViewportLayout } from "./ui/layout/ViewportLayout";
+import { SignIn } from "./ui/screen/SignIn";
+import { Splash } from "./ui/screen/Splash";
 
 export const App = () => {
   return (
     <ViewportLayout>
-      <Router>
-        {[
-          {
-            path: "/sign-in",
-            component: () => (
-              <Splash>
-                <SignIn />
-              </Splash>
-            ),
-          },
-        ]}
-      </Router>
+      <Splash>
+        <Router>
+          {[
+            {
+              path: "/sign-in",
+              component: () => <SignIn />,
+            },
+          ]}
+        </Router>
+      </Splash>
     </ViewportLayout>
   );
 };

@@ -1,6 +1,6 @@
 import { createSignal, JSXElement, Show } from "solid-js";
 
-import { SERVICE_NAME } from "../service/constant/domain";
+import { SERVICE_NAME } from "../../service/constant/domain";
 
 export const Splash = (props: { children: JSXElement }) => {
   const [loading, setLoading] = createSignal(true);

@@ -1,5 +1,5 @@
-import { Button } from "../ui/component/Button";
-import { LogoLayout } from "../ui/layout/LogoLayout";
+import { Button } from "../component/Button";
+import { LogoLayout } from "../layout/LogoLayout";
 
 export const SignIn = () => {
   return (
