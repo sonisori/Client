@@ -4,6 +4,7 @@ import { ViewportLayout } from "./ui/layout/ViewportLayout";
 import { SignIn } from "./ui/screen/SignIn";
 import { SignUp } from "./ui/screen/SignUp";
 import { Splash } from "./ui/screen/Splash";
+import { Translator } from "./ui/screen/Translator";
 
 export const App = () => {
   return (
@@ -18,6 +19,10 @@ export const App = () => {
             {
               path: "/sign-up",
               component: () => <SignUp />,
+            },
+            {
+              path: "/translator",
+              component: () => <Translator />,
             },
           ]}
         </Router>
