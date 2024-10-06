@@ -4,7 +4,7 @@ import {
   TextFieldLabel,
   TextFieldRoot,
 } from "../component/base/TextField";
-import { Button } from "../component/Button";
+import { Button } from "../component/base/Button";
 import { LogoLayout } from "../layout/LogoLayout";
 
 export const SignUp = () => {
@@ -19,7 +19,9 @@ export const SignUp = () => {
           </TextFieldRoot>
         </div>
         <div class="mt-8">
-          <Button>가입하기</Button>
+          <Button as="a" href="/translator">
+            가입하기
+          </Button>
         </div>
       </div>
     </LogoLayout>
