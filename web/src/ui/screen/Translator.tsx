@@ -1,6 +1,7 @@
-import { onMount } from "solid-js";
+import { onMount, For } from "solid-js";
 
 import { Badge } from "../component/base/Badge";
+import { Dropdown } from "../component/Dropdown";
 import { MenuLayout } from "../layout/MenuLayout";
 
 export const Translator = () => {
@@ -9,9 +10,27 @@ export const Translator = () => {
   onMount(() => {
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
       videoRef.srcObject = stream;
-      videoRef.addEventListener("loadeddata", console.log);
     });
   });
+
+  const words = [
+    "나는",
+    "오늘",
+    "밥을",
+    "먹었다",
+    "나는",
+    "오늘",
+    "밥을",
+    "먹었다",
+    "나는",
+    "오늘",
+    "밥을",
+    "먹었다",
+    "나는",
+    "오늘",
+    "밥을",
+    "먹었다",
+  ];
 
   return (
     <MenuLayout>
@@ -24,10 +43,28 @@ export const Translator = () => {
             playsinline
           />
         </div>
-        <div class="flex gap-4 border-b p-5">
-          <Badge size="md">오늘</Badge>
-          <Badge size="md">오늘</Badge>
-          <Badge size="md">오늘</Badge>
+        <div class="flex gap-4 overflow-x-scroll border-b p-5">
+          <For each={words}>
+            {(word) => (
+              <Dropdown
+                menu={[
+                  {
+                    items: [
+                      {
+                        title: "여기부터 다시 입력",
+                        onClick: () => console.log(word),
+                      },
+                      { title: "삭제", onClick: () => console.log(word) },
+                    ],
+                  },
+                ]}
+              >
+                <Badge size="md" class="whitespace-pre">
+                  {word}
+                </Badge>
+              </Dropdown>
+            )}
+          </For>
         </div>
       </div>
     </MenuLayout>
