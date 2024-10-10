@@ -1,6 +1,7 @@
 import { onMount, For } from "solid-js";
 
 import { Badge } from "../component/base/Badge";
+import { ScrollArea } from "../component/base/ScrollArea";
 import { Dropdown } from "../component/Dropdown";
 import { MenuLayout } from "../layout/MenuLayout";
 
@@ -43,28 +44,32 @@ export const Translator = () => {
             playsinline
           />
         </div>
-        <div class="flex gap-4 overflow-x-scroll border-b p-5">
-          <For each={words}>
-            {(word) => (
-              <Dropdown
-                menu={[
-                  {
-                    items: [
+        <div class="border-b">
+          <ScrollArea direction="x">
+            <div class="flex gap-4 p-5">
+              <For each={words}>
+                {(word) => (
+                  <Dropdown
+                    menu={[
                       {
-                        title: "여기부터 다시 입력",
-                        onClick: () => console.log(word),
+                        items: [
+                          {
+                            title: "여기부터 다시 입력",
+                            onClick: () => console.log(word),
+                          },
+                          { title: "삭제", onClick: () => console.log(word) },
+                        ],
                       },
-                      { title: "삭제", onClick: () => console.log(word) },
-                    ],
-                  },
-                ]}
-              >
-                <Badge size="md" class="whitespace-pre">
-                  {word}
-                </Badge>
-              </Dropdown>
-            )}
-          </For>
+                    ]}
+                  >
+                    <Badge size="md" class="whitespace-pre">
+                      {word}
+                    </Badge>
+                  </Dropdown>
+                )}
+              </For>
+            </div>
+          </ScrollArea>
         </div>
       </div>
     </MenuLayout>
