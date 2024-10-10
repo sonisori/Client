@@ -100,10 +100,10 @@ const scrollAreaVariant = cva("relative", {
   },
 });
 
-const scrollBarVariant = cva("group absolute bg-accent hover:bg-red-500", {
+const scrollBarVariant = cva("absolute transition-opacity duration-500", {
   variants: {
     direction: {
-      x: "bottom-0 inset-x-0 h-2",
+      x: "bottom-0.5 inset-x-0.5",
       y: "right-0 inset-y-0 w-2",
     },
   },
@@ -126,6 +126,12 @@ export const ScrollArea = (
 
   const childrenSize = createElementSize(childrenContainer);
   const containerSize = createElementSize(scrollAreaContainer);
+
+  const scrollHandleSize = () =>
+    typeof childrenSize.width === "number" &&
+    typeof containerSize.width === "number"
+      ? (containerSize.width * containerSize.width) / childrenSize.width
+      : 0;
 
   const handleScroll = (e: WheelEvent) => {
     if (snapshot.matches("scrolling")) {
@@ -170,10 +176,16 @@ export const ScrollArea = (
       </div>
       <div
         class={cn(scrollBarVariant({ direction: props.direction }), {
-          invisible: !snapshot.context.showScrollbar,
+          "opacity-0": !snapshot.context.showScrollbar,
         })}
       >
-        <div class="handle" />
+        <div
+          class="h-1.5 rounded-full bg-border"
+          style={{
+            width: `${scrollHandleSize()}px`,
+            transform: `translateX(${(snapshot.context.offset / ((childrenSize.width ?? 0) - (containerSize.width ?? 0))) * ((containerSize.width ?? 0) - scrollHandleSize())}px)`,
+          }}
+        />
       </div>
     </div>
   );
