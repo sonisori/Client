@@ -1,13 +1,18 @@
-import { createElementSize } from "@solid-primitives/resize-observer";
+import {
+  createElementSize,
+  NullableSize,
+} from "@solid-primitives/resize-observer";
 import { useActor } from "@xstate/solid";
 import { cva, VariantProps } from "class-variance-authority";
-import { createEffect, createSignal, JSXElement } from "solid-js";
+import { createEffect, createSignal, JSXElement, on } from "solid-js";
 import { assertEvent, assign, setup } from "xstate";
 
-import { MIN_WIDTH } from "../../../service/constant/domain";
 import { cn } from "../../../service/util/cn";
 
 const DELAY = 1000;
+
+const widthOf = (size: NullableSize, defaultValue: number = 0) =>
+  size.width ?? defaultValue;
 
 const scrollAreaMachine = setup({
   types: {} as {
@@ -49,6 +54,7 @@ const scrollAreaMachine = setup({
     hidden: {
       on: {
         POINTER_ENTER: "visible",
+        SET_OFFSET: { actions: "setOffset" },
       },
       after: {
         [DELAY]: { actions: "hideScrollbar" },
@@ -128,33 +134,35 @@ export const ScrollArea = (
   const containerSize = createElementSize(scrollAreaContainer);
 
   const scrollHandleSize = () =>
-    typeof childrenSize.width === "number" &&
-    typeof containerSize.width === "number"
-      ? (containerSize.width * containerSize.width) / childrenSize.width
-      : 0;
+    (widthOf(containerSize) * widthOf(containerSize)) /
+      widthOf(childrenSize, 1) -
+    4;
 
   const handleScroll = (e: WheelEvent) => {
-    if (snapshot.matches("scrolling")) {
-      const maxOffset =
-        typeof childrenSize.width === "number" &&
-        typeof containerSize.width === "number"
-          ? childrenSize.width - containerSize.width
-          : MIN_WIDTH;
-      send({
-        type: "SET_OFFSET",
-        offset: Math.min(
-          maxOffset,
-          Math.max(0, snapshot.context.offset + e.deltaX),
-        ),
-      });
+    if (!snapshot.matches("scrolling")) {
+      send({ type: "SCROLL_START" });
       return;
     }
-    send({ type: "SCROLL_START" });
+
+    const maxOffset = widthOf(childrenSize) - widthOf(containerSize) - 4;
+
+    send({
+      type: "SET_OFFSET",
+      offset: Math.min(
+        maxOffset,
+        Math.max(0, snapshot.context.offset + e.deltaX),
+      ),
+    });
   };
 
-  createEffect(() => {
-    console.log(snapshot.value);
-  });
+  createEffect(
+    on(
+      () => [containerSize.width],
+      () => {
+        send({ type: "SET_OFFSET", offset: 0 });
+      },
+    ),
+  );
 
   return (
     <div
@@ -183,7 +191,11 @@ export const ScrollArea = (
           class="h-1.5 rounded-full bg-border"
           style={{
             width: `${scrollHandleSize()}px`,
-            transform: `translateX(${(snapshot.context.offset / ((childrenSize.width ?? 0) - (containerSize.width ?? 0))) * ((containerSize.width ?? 0) - scrollHandleSize())}px)`,
+            transform: `translateX(${
+              (snapshot.context.offset /
+                (widthOf(childrenSize) - widthOf(containerSize))) *
+              (widthOf(containerSize) - scrollHandleSize())
+            }px)`,
           }}
         />
       </div>
