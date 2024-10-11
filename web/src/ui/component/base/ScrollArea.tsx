@@ -73,6 +73,7 @@ const scrollAreaMachine = setup({
         SCROLL_START: "scrolling",
         POINTER_ACTIVE: "interacting",
         POINTER_LEAVE: "hidden",
+        SET_OFFSET: { actions: "setOffset" },
       },
     },
     scrolling: {
@@ -200,7 +201,8 @@ export const ScrollArea = (
       <div
         ref={setChildrenContainer}
         class={cn("min-w-max", {
-          "transition-transform duration-500": snapshot.matches("hidden"),
+          "transition-transform duration-500":
+            snapshot.matches("hidden") || snapshot.matches("visible"),
         })}
         style={{ transform: `translateX(${-snapshot.context.offset}px)` }}
       >
