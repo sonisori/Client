@@ -1,6 +1,7 @@
-import { onMount, For } from "solid-js";
+import { onMount, For, createSignal } from "solid-js";
 
 import { Badge } from "../component/base/Badge";
+import { Button } from "../component/base/Button";
 import { ScrollArea } from "../component/base/ScrollArea";
 import { Dropdown } from "../component/Dropdown";
 import { MenuLayout } from "../layout/MenuLayout";
@@ -14,24 +15,7 @@ export const Translator = () => {
     });
   });
 
-  const words = [
-    "나는",
-    "오늘",
-    "밥을",
-    "먹었다",
-    "나는",
-    "오늘",
-    "밥을",
-    "먹었다",
-    "나는",
-    "오늘",
-    "밥을",
-    "먹었다",
-    "나는",
-    "오늘",
-    "밥을",
-    "먹었다",
-  ];
+  const [words, setWords] = createSignal(["나는", "오늘", "밥을", "먹었다"]);
 
   return (
     <MenuLayout>
@@ -45,9 +29,12 @@ export const Translator = () => {
           />
         </div>
         <div class="border-b">
-          <ScrollArea direction="x">
-            <div class="flex gap-4 p-5">
-              <For each={words}>
+          <ScrollArea direction="x" defaultOffset={words().length * 500}>
+            <div
+              class="flex gap-4 p-5"
+              style={{ "padding-right": "calc( 50vw - 144px - 80px )" }}
+            >
+              <For each={words()}>
                 {(word) => (
                   <Dropdown
                     menu={[
@@ -70,6 +57,15 @@ export const Translator = () => {
               </For>
             </div>
           </ScrollArea>
+        </div>
+        <div class="bg-gray-50 p-5">
+          <Button
+            onClick={() => {
+              setWords((p) => [...p, "새로운단어"]);
+            }}
+          >
+            단어 인식 예시
+          </Button>
         </div>
       </div>
     </MenuLayout>
