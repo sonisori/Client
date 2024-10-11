@@ -213,7 +213,9 @@ export const ScrollArea = (
           })}
         >
           <div
-            class="h-1.5 rounded-full bg-border"
+            class={cn("h-1.5 rounded-full bg-border", {
+              "transition-transform duration-500": snapshot.matches("hidden"),
+            })}
             style={{
               width: `${scrollHandleSize()}px`,
               transform: `translateX(${
