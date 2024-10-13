@@ -4,7 +4,14 @@ import {
 } from "@solid-primitives/resize-observer";
 import { useMachine } from "@xstate/solid";
 import { cva } from "class-variance-authority";
-import { createEffect, createSignal, JSXElement, on, Show } from "solid-js";
+import {
+  createEffect,
+  createSignal,
+  JSX,
+  JSXElement,
+  on,
+  Show,
+} from "solid-js";
 import { assertEvent, assign, setup } from "xstate";
 
 import { cn } from "../../../service/util/cn";
@@ -123,6 +130,8 @@ export const ScrollArea = (props: {
   direction: "x" | "y";
   class?: string;
   defaultOffset?: number;
+  style?: JSX.CSSProperties;
+  disableAnimation?: boolean;
 }) => {
   const [childrenContainer, setChildrenContainer] =
     createSignal<HTMLDivElement>();
@@ -168,7 +177,7 @@ export const ScrollArea = (props: {
 
   createEffect(
     on(
-      () => [containerSize.width],
+      () => [containerSize[SIZE_MAP[props.direction]]],
       () => {
         send({
           type: "SET_OFFSET",
@@ -195,12 +204,14 @@ export const ScrollArea = (props: {
         handleScroll(e);
       }}
       class={cn(scrollAreaVariant({ direction: props.direction }), props.class)}
+      style={props.style}
     >
       <div
         ref={setChildrenContainer}
         class={cn({
           "transition-transform duration-500":
-            snapshot.matches("hidden") || snapshot.matches("visible"),
+            !props.disableAnimation &&
+            (snapshot.matches("hidden") || snapshot.matches("visible")),
           "min-w-max": props.direction === "x",
           "min-h-max": props.direction === "y",
         })}

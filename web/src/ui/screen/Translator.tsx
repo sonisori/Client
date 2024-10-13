@@ -33,11 +33,17 @@ export const Translator = () => {
           />
         </Show>
         <ScrollArea
+          disableAnimation
           direction="y"
-          class="h-12"
+          class="absolute inset-x-0 bottom-[77px]"
+          style={{
+            top: snapshot.matches({ inputting: { left: "sign" } })
+              ? "calc(50vh + 70px)"
+              : "0",
+          }}
           defaultOffset={phrases().length * 500}
         >
-          <div class="flex h-[calc(100%-77px)] w-full flex-col justify-end p-5">
+          <div class="flex w-full flex-col justify-end p-5">
             <div class="space-y-1">
               <For each={phrases()}>
                 {(message) => (
@@ -76,6 +82,24 @@ export const Translator = () => {
                       }),
                       onClick: () => {
                         send({ type: "INPUT_SIGN_LEFT", phraseType: "평서문" });
+                      },
+                    },
+                    {
+                      title: "의문문",
+                      disabled: snapshot.matches({
+                        inputting: { left: "sign" },
+                      }),
+                      onClick: () => {
+                        send({ type: "INPUT_SIGN_LEFT", phraseType: "의문문" });
+                      },
+                    },
+                    {
+                      title: "감탄문",
+                      disabled: snapshot.matches({
+                        inputting: { left: "sign" },
+                      }),
+                      onClick: () => {
+                        send({ type: "INPUT_SIGN_LEFT", phraseType: "감탄문" });
                       },
                     },
                   ],
