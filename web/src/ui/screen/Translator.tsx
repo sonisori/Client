@@ -1,86 +1,37 @@
-import { onMount, For, createSignal, Show } from "solid-js";
+import { useMachine } from "@xstate/solid";
+import { For, createSignal, Show } from "solid-js";
 
 import { Phrase } from "../../service/type/phrase";
-import { Word } from "../../service/type/word";
 import { cn } from "../../service/util/cn";
-import { Badge } from "../component/base/Badge";
 import { Button } from "../component/base/Button";
-import { ScrollArea } from "../component/base/ScrollArea";
+import { SignDetector } from "../component/domain/SignDetector";
 import { Dropdown } from "../component/Dropdown";
 import { MenuLayout } from "../layout/MenuLayout";
+import { translatorScreenMachine } from "./Translator.machine";
 
 export const Translator = () => {
-  const [words, setWords] = createSignal<Word[]>([]);
-  const [phrases] = createSignal<Phrase[]>([]);
-
-  let videoRef!: HTMLVideoElement;
-  onMount(() => {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      videoRef.srcObject = stream;
-    });
-  });
+  const [snapshot, send] = useMachine(translatorScreenMachine);
+  const [phrases, setPhrases] = createSignal<Phrase[]>([]);
 
   return (
     <MenuLayout>
       <div class="fixed inset-y-0 left-72 right-0">
-        <div class="flex h-[50vh] justify-center bg-gray-50">
-          <video
-            ref={videoRef}
-            class="size-16 h-full w-full -scale-x-100"
-            autoplay
-            playsinline
+        <Show when={snapshot.matches({ inputting: { left: "sign" } })}>
+          <SignDetector
+            onDone={() => {
+              setPhrases((phrases) => [
+                ...phrases,
+                {
+                  author: "left",
+                  text: "수어로 인식한 문장이 표시됩니다.",
+                  type: "sign",
+                },
+              ]);
+              send({ type: "DONE" });
+            }}
           />
-        </div>
-        <div class="border-b">
-          <ScrollArea direction="x" defaultOffset={words().length * 500}>
-            <div
-              class="flex h-[70px] items-center gap-4 px-5"
-              style={{ "padding-right": "calc( 50vw - 144px - 80px )" }}
-            >
-              <Show when={words().length === 0}>
-                <p class="animate-pulse text-sm text-secondary-foreground">
-                  수어 인식중...
-                </p>
-              </Show>
-              <For each={words()}>
-                {(word, index) => (
-                  <Dropdown
-                    menu={[
-                      {
-                        items: [
-                          {
-                            title: "여기부터 다시 입력",
-                            onClick: () => {
-                              setWords((words) => words.slice(0, index()));
-                            },
-                          },
-                          {
-                            title: "삭제",
-                            onClick: () => {
-                              setWords((words) =>
-                                words.filter((_, i) => i != index()),
-                              );
-                            },
-                          },
-                        ],
-                      },
-                    ]}
-                  >
-                    <Badge
-                      size="md"
-                      class="whitespace-pre animate-in fade-in"
-                      variant="secondary"
-                      tabIndex={-1}
-                    >
-                      {word.text}
-                    </Badge>
-                  </Dropdown>
-                )}
-              </For>
-            </div>
-          </ScrollArea>
-        </div>
-        <div class="h-[calc(50vh-70px-77px)] w-full overflow-y-scroll p-5">
+        </Show>
+        <div class="h-full w-full overflow-y-scroll p-5">
           <div class="space-y-1">
             <For each={phrases()}>
               {(message) => (
@@ -105,7 +56,7 @@ export const Translator = () => {
             </For>
           </div>
         </div>
-        <div class="flex justify-between border-t p-5">
+        <div class="fixed bottom-0 left-72 right-0 z-10 flex justify-between border-t bg-white p-5">
           <div class="flex gap-5">
             <Dropdown
               menu={[
@@ -114,10 +65,7 @@ export const Translator = () => {
                     {
                       title: "평서문",
                       onClick: () => {
-                        setWords((words) => [
-                          ...words,
-                          { text: "수어로 인식한 단어" },
-                        ]);
+                        send({ type: "INPUT_SIGN_LEFT", phraseType: "평서문" });
                       },
                     },
                   ],
