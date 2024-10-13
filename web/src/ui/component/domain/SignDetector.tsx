@@ -1,4 +1,4 @@
-import { Show, For, onMount, createSignal } from "solid-js";
+import { Show, For, onMount, createSignal, createReaction } from "solid-js";
 
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
@@ -6,9 +6,11 @@ import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
 import { ScrollArea } from "../base/ScrollArea";
 import { Dropdown } from "../Dropdown";
+
 export const SignDetector = (props: { onDone: () => void }) => {
   const [words, setWords] = createSignal<Word[]>([]);
   const [streamStarted, setStreamStarted] = createSignal(false);
+  const [closed, setClosed] = createSignal(false);
 
   let videoRef!: HTMLVideoElement;
   onMount(() => {
@@ -18,8 +20,18 @@ export const SignDetector = (props: { onDone: () => void }) => {
     });
   });
 
+  const trackClose = createReaction(() =>
+    setTimeout(() => props.onDone(), 200),
+  );
+  trackClose(closed);
+
   return (
-    <div class="duration-200 animate-in fade-in slide-in-from-top-10">
+    <div
+      class={cn("absolute inset-x-0 top-0 z-10 bg-white duration-200", {
+        "animate-out fade-out slide-out-to-top-10 fill-mode-forwards": closed(),
+        "animate-in fade-in slide-in-from-top-10": !closed(),
+      })}
+    >
       <div class="flex h-[50vh] -scale-x-100 justify-center bg-gray-50">
         <video
           ref={videoRef}
@@ -80,7 +92,7 @@ export const SignDetector = (props: { onDone: () => void }) => {
           <Button
             size="sm"
             class="absolute right-5 top-5"
-            onClick={() => props.onDone()}
+            onClick={() => setClosed(true)}
           >
             마침
           </Button>

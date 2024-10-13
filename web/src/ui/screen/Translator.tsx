@@ -31,7 +31,7 @@ export const Translator = () => {
             }}
           />
         </Show>
-        <div class="h-full w-full overflow-y-scroll p-5">
+        <div class="flex h-[calc(100%-77px)] w-full flex-col justify-end overflow-y-scroll p-5">
           <div class="space-y-1">
             <For each={phrases()}>
               {(message) => (
@@ -64,6 +64,9 @@ export const Translator = () => {
                   items: [
                     {
                       title: "평서문",
+                      disabled: snapshot.matches({
+                        inputting: { left: "sign" },
+                      }),
                       onClick: () => {
                         send({ type: "INPUT_SIGN_LEFT", phraseType: "평서문" });
                       },

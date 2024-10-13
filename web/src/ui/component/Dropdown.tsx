@@ -14,7 +14,7 @@ export const Dropdown = (props: {
   children: JSXElement;
   menu: {
     title?: string;
-    items: { title: string; onClick: () => void }[];
+    items: { title: string; onClick: () => void; disabled?: boolean }[];
   }[];
 }) => {
   return (
@@ -32,7 +32,11 @@ export const Dropdown = (props: {
               )}
               <For each={menu.items}>
                 {(item) => (
-                  <DropdownMenuItem onClick={item.onClick}>
+                  <DropdownMenuItem
+                    disabled={item.disabled}
+                    title="dfdf"
+                    onClick={item.onClick}
+                  >
                     {item.title}
                   </DropdownMenuItem>
                 )}
