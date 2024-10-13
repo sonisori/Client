@@ -1,5 +1,7 @@
-import { onMount, For, createSignal, onCleanup } from "solid-js";
+import { onMount, For, createSignal } from "solid-js";
 
+import { Phrase } from "../../service/type/phrase";
+import { Word } from "../../service/type/word";
 import { cn } from "../../service/util/cn";
 import { Badge } from "../component/base/Badge";
 import { Button } from "../component/base/Button";
@@ -8,37 +10,14 @@ import { Dropdown } from "../component/Dropdown";
 import { MenuLayout } from "../layout/MenuLayout";
 
 export const Translator = () => {
-  let videoRef!: HTMLVideoElement;
+  const [words, setWords] = createSignal<Word[]>([]);
+  const [phrases] = createSignal<Phrase[]>([]);
 
+  let videoRef!: HTMLVideoElement;
   onMount(() => {
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
       videoRef.srcObject = stream;
     });
-  });
-
-  const [words, setWords] = createSignal(["나는", "오늘", "밥을", "먹었다"]);
-
-  const [messages, setMessages] = createSignal([
-    {
-      text: "안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요",
-      type: "sign",
-      author: "left",
-    },
-    { text: "안녕하세요", type: "sign", author: "right" },
-    { text: "안녕하세요", type: "sign", author: "left" },
-    { text: "안녕하세요", type: "sign", author: "right" },
-    { text: "안녕하세요", type: "sign", author: "left" },
-    { text: "안녕하세요", type: "sign", author: "right" },
-    { text: "안녕하세요", type: "sign", author: "left" },
-    { text: "안녕하세요", type: "sign", author: "right" },
-    { text: "안녕하세요", type: "sign", author: "left" },
-    { text: "안녕하세요", type: "sign", author: "right" },
-  ]);
-
-  const addWord = () => setWords((p) => [...p, "새로운단어"]);
-  window.addEventListener("keydown", addWord);
-  onCleanup(() => {
-    window.removeEventListener("keydown", addWord);
   });
 
   return (
@@ -55,26 +34,40 @@ export const Translator = () => {
         <div class="border-b">
           <ScrollArea direction="x" defaultOffset={words().length * 500}>
             <div
-              class="flex gap-4 p-5"
+              class="flex h-[70px] gap-4 p-5"
               style={{ "padding-right": "calc( 50vw - 144px - 80px )" }}
             >
               <For each={words()}>
-                {(word) => (
+                {(word, index) => (
                   <Dropdown
                     menu={[
                       {
                         items: [
                           {
                             title: "여기부터 다시 입력",
-                            onClick: () => console.log(word),
+                            onClick: () => {
+                              setWords((words) => words.slice(0, index()));
+                            },
                           },
-                          { title: "삭제", onClick: () => console.log(word) },
+                          {
+                            title: "삭제",
+                            onClick: () => {
+                              setWords((words) =>
+                                words.filter((_, i) => i != index()),
+                              );
+                            },
+                          },
                         ],
                       },
                     ]}
                   >
-                    <Badge size="md" class="whitespace-pre" variant="secondary">
-                      {word}
+                    <Badge
+                      size="md"
+                      class="whitespace-pre"
+                      variant="secondary"
+                      tabIndex={-1}
+                    >
+                      {word.text}
                     </Badge>
                   </Dropdown>
                 )}
@@ -84,7 +77,7 @@ export const Translator = () => {
         </div>
         <div class="h-[calc(50vh-70px-77px)] w-full overflow-y-scroll p-5">
           <div class="space-y-1">
-            <For each={messages()}>
+            <For each={phrases()}>
               {(message) => (
                 <div
                   class={cn("flex", {
@@ -109,7 +102,25 @@ export const Translator = () => {
         </div>
         <div class="flex justify-between border-t p-5">
           <div class="flex gap-5">
-            <Button>수어 인식</Button>
+            <Dropdown
+              menu={[
+                {
+                  items: [
+                    {
+                      title: "평서문",
+                      onClick: () => {
+                        setWords((words) => [
+                          ...words,
+                          { text: "수어로 인식한 단어" },
+                        ]);
+                      },
+                    },
+                  ],
+                },
+              ]}
+            >
+              <Button>수어 인식</Button>
+            </Dropdown>
             <Button>텍스트 입력</Button>
           </div>
           <div class="flex gap-5">
