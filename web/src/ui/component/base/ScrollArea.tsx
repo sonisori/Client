@@ -3,7 +3,7 @@ import {
   NullableSize,
 } from "@solid-primitives/resize-observer";
 import { useMachine } from "@xstate/solid";
-import { cva, VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { createEffect, createSignal, JSXElement, on, Show } from "solid-js";
 import { assertEvent, assign, setup } from "xstate";
 
@@ -11,8 +11,9 @@ import { cn } from "../../../service/util/cn";
 
 const DELAY = 1000;
 
-const widthOf = (size: NullableSize, defaultValue: number = 0) =>
-  size.width ?? defaultValue;
+const TRANSLATE_MAP = { x: "translateX", y: "translateY" } as const;
+const SIZE_MAP = { x: "width", y: "height" } as const;
+const DELTA_MAP = { x: "deltaX", y: "deltaY" } as const;
 
 const scrollAreaMachine = setup({
   types: {} as {
@@ -106,30 +107,23 @@ const scrollAreaVariant = cva("relative", {
       y: "overflow-y-hidden",
     },
   },
-  defaultVariants: {
-    direction: "y",
-  },
 });
 
 const scrollBarVariant = cva("absolute transition-opacity duration-500", {
   variants: {
     direction: {
       x: "bottom-0.5 inset-x-0.5",
-      y: "right-0 inset-y-0 w-2",
+      y: "right-0.5 inset-y-0.5",
     },
-  },
-  defaultVariants: {
-    direction: "y",
   },
 });
 
-export const ScrollArea = (
-  props: {
-    children: JSXElement;
-    class?: string;
-    defaultOffset?: number;
-  } & VariantProps<typeof scrollAreaVariant>,
-) => {
+export const ScrollArea = (props: {
+  children: JSXElement;
+  direction: "x" | "y";
+  class?: string;
+  defaultOffset?: number;
+}) => {
   const [childrenContainer, setChildrenContainer] =
     createSignal<HTMLDivElement>();
   const [scrollAreaContainer, setScrollAreaContainer] =
@@ -138,8 +132,11 @@ export const ScrollArea = (
   const childrenSize = createElementSize(childrenContainer);
   const containerSize = createElementSize(scrollAreaContainer);
 
+  const sizeOf = (size: NullableSize, defaultValue: number = 0) =>
+    size[SIZE_MAP[props.direction]] ?? defaultValue;
+
   const getSafeOffset = (offset: number) => {
-    const maxOffset = widthOf(childrenSize) - widthOf(containerSize) - 4;
+    const maxOffset = sizeOf(childrenSize) - sizeOf(containerSize) - 4;
     return Math.min(maxOffset, Math.max(0, offset));
   };
 
@@ -151,11 +148,10 @@ export const ScrollArea = (
   });
 
   const scrollHandleSize = () =>
-    (widthOf(containerSize) * widthOf(containerSize)) /
-      widthOf(childrenSize, 1) -
+    (sizeOf(containerSize) * sizeOf(containerSize)) / sizeOf(childrenSize, 1) -
     4;
 
-  const showScrollbar = () => widthOf(childrenSize) > widthOf(containerSize);
+  const showScrollbar = () => sizeOf(childrenSize) > sizeOf(containerSize);
 
   const handleScroll = (e: WheelEvent) => {
     if (!snapshot.matches("scrolling")) {
@@ -164,7 +160,9 @@ export const ScrollArea = (
     }
     send({
       type: "SET_OFFSET",
-      offset: getSafeOffset(snapshot.context.offset + e.deltaX),
+      offset: getSafeOffset(
+        snapshot.context.offset + e[DELTA_MAP[props.direction]],
+      ),
     });
   };
 
@@ -200,11 +198,15 @@ export const ScrollArea = (
     >
       <div
         ref={setChildrenContainer}
-        class={cn("min-w-max", {
+        class={cn({
           "transition-transform duration-500":
             snapshot.matches("hidden") || snapshot.matches("visible"),
+          "min-w-max": props.direction === "x",
+          "min-h-max": props.direction === "y",
         })}
-        style={{ transform: `translateX(${-snapshot.context.offset}px)` }}
+        style={{
+          transform: `${TRANSLATE_MAP[props.direction]}(${-snapshot.context.offset}px)`,
+        }}
       >
         {props.children}
       </div>
@@ -215,15 +217,17 @@ export const ScrollArea = (
           })}
         >
           <div
-            class={cn("h-1.5 rounded-full bg-border", {
+            class={cn("rounded-full bg-border", {
               "transition-transform duration-500": snapshot.matches("hidden"),
+              "h-1.5": props.direction === "x",
+              "w-1.5": props.direction === "y",
             })}
             style={{
-              width: `${scrollHandleSize()}px`,
-              transform: `translateX(${
+              [SIZE_MAP[props.direction]]: `${scrollHandleSize()}px`,
+              transform: `${TRANSLATE_MAP[props.direction]}(${
                 (snapshot.context.offset /
-                  (widthOf(childrenSize) - widthOf(containerSize))) *
-                (widthOf(containerSize) - scrollHandleSize())
+                  (sizeOf(childrenSize) - sizeOf(containerSize))) *
+                (sizeOf(containerSize) - scrollHandleSize())
               }px)`,
             }}
           />

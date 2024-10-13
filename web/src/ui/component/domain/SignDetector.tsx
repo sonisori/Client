@@ -52,6 +52,7 @@ export const SignDetector = (props: { onDone: () => void }) => {
           class={cn("h-full duration-200", { "opacity-0": !streamStarted() })}
           autoplay
           playsinline
+          onClick={() => setWords((words) => [...words, { text: "테스트" }])}
         />
       </div>
       <div class="border-b">

@@ -37,6 +37,7 @@ export const translatorScreenMachine = setup({
           initial: "sign",
           states: {
             sign: {
+              meta: { say: "hello" },
               on: {
                 DONE: { target: "#idle" },
               },
