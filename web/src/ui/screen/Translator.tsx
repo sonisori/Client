@@ -1,4 +1,4 @@
-import { onMount, For, createSignal } from "solid-js";
+import { onMount, For, createSignal, Show } from "solid-js";
 
 import { Phrase } from "../../service/type/phrase";
 import { Word } from "../../service/type/word";
@@ -22,7 +22,7 @@ export const Translator = () => {
 
   return (
     <MenuLayout>
-      <div class="inset-top-0 fixed left-72 right-0">
+      <div class="fixed inset-y-0 left-72 right-0">
         <div class="flex h-[50vh] justify-center bg-gray-50">
           <video
             ref={videoRef}
@@ -34,9 +34,14 @@ export const Translator = () => {
         <div class="border-b">
           <ScrollArea direction="x" defaultOffset={words().length * 500}>
             <div
-              class="flex h-[70px] gap-4 p-5"
+              class="flex h-[70px] items-center gap-4 px-5"
               style={{ "padding-right": "calc( 50vw - 144px - 80px )" }}
             >
+              <Show when={words().length === 0}>
+                <p class="animate-pulse text-sm text-secondary-foreground">
+                  수어 인식중...
+                </p>
+              </Show>
               <For each={words()}>
                 {(word, index) => (
                   <Dropdown
@@ -63,7 +68,7 @@ export const Translator = () => {
                   >
                     <Badge
                       size="md"
-                      class="whitespace-pre"
+                      class="whitespace-pre animate-in fade-in"
                       variant="secondary"
                       tabIndex={-1}
                     >
