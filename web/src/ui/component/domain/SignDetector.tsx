@@ -1,4 +1,11 @@
-import { Show, For, onMount, createSignal, createReaction } from "solid-js";
+import {
+  Show,
+  For,
+  onMount,
+  createSignal,
+  createReaction,
+  onCleanup,
+} from "solid-js";
 
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
@@ -13,9 +20,12 @@ export const SignDetector = (props: { onDone: () => void }) => {
   const [closed, setClosed] = createSignal(false);
 
   let videoRef!: HTMLVideoElement;
+  let stream: MediaStream;
+
   onMount(() => {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      videoRef.srcObject = stream;
+    navigator.mediaDevices.getUserMedia({ video: true }).then((_stream) => {
+      videoRef.srcObject = _stream;
+      stream = _stream;
       setStreamStarted(true);
     });
   });
@@ -24,6 +34,10 @@ export const SignDetector = (props: { onDone: () => void }) => {
     setTimeout(() => props.onDone(), 200),
   );
   trackClose(closed);
+
+  onCleanup(() => {
+    stream?.getTracks().forEach((track) => track.stop());
+  });
 
   return (
     <div
