@@ -8,14 +8,17 @@ import { Check } from "../../icon/Check";
 import { Pencil } from "../../icon/Pencil";
 import { Button } from "../base/Button";
 
-const bubbleVariants = cva("max-w-[512px] rounded-2xl px-2 py-1.5 break-all", {
-  variants: {
-    author: {
-      left: "rounded-bl-none bg-accent-foreground/80 pr-3 text-accent",
-      right: "rounded-br-none bg-accent pl-3 text-accent-foreground",
+const bubbleVariants = cva(
+  "max-w-[512px] rounded-2xl px-2 py-1.5 break-all whitespace-pre-line",
+  {
+    variants: {
+      author: {
+        left: "rounded-bl-none bg-accent-foreground/80 pr-3 text-accent",
+        right: "rounded-br-none bg-accent pl-3 text-accent-foreground",
+      },
     },
   },
-});
+);
 
 export const PhraseBubble = (props: {
   phrase: Phrase;
