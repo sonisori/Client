@@ -1,3 +1,4 @@
+import { TextField } from "@kobalte/core/text-field";
 import { cva } from "class-variance-authority";
 import { createSignal, Show } from "solid-js";
 
@@ -7,7 +8,7 @@ import { Check } from "../../icon/Check";
 import { Pencil } from "../../icon/Pencil";
 import { Button } from "../base/Button";
 
-const bubbleVariants = cva("max-w-[512px] rounded-2xl px-2 py-1.5 w-max", {
+const bubbleVariants = cva("max-w-[512px] rounded-2xl px-2 py-1.5 break-all", {
   variants: {
     author: {
       left: "rounded-bl-none bg-accent-foreground/80 pr-3 text-accent",
@@ -16,8 +17,12 @@ const bubbleVariants = cva("max-w-[512px] rounded-2xl px-2 py-1.5 w-max", {
   },
 });
 
-export const PhraseBubble = (props: { phrase: Phrase }) => {
-  const [mode, setMode] = createSignal<"view" | "edit">("view");
+export const PhraseBubble = (props: {
+  phrase: Phrase;
+  onEdit: (phrase: Phrase) => void;
+}) => {
+  const [text, setText] = createSignal<string | null>(null);
+  const mode = () => (typeof text() === "string" ? "edit" : "view");
   return (
     <div
       class={cn("group flex gap-1", {
@@ -35,7 +40,9 @@ export const PhraseBubble = (props: { phrase: Phrase }) => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setMode("edit")}
+              onClick={() => {
+                setText(props.phrase.text);
+              }}
               class="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             >
               <Pencil />
@@ -43,11 +50,20 @@ export const PhraseBubble = (props: { phrase: Phrase }) => {
           </>
         }
       >
-        <textarea
-          value={props.phrase.text}
-          class={cn(bubbleVariants({ author: props.phrase.author }))}
-        />
-        <Button variant="ghost" size="icon" onClick={() => setMode("view")}>
+        <TextField value={text() as string} onChange={setText}>
+          <TextField.TextArea
+            autoResize
+            class={cn(bubbleVariants({ author: props.phrase.author }), "w-80")}
+          />
+        </TextField>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            props.onEdit({ ...props.phrase, text: text() as string });
+            setText(null);
+          }}
+        >
           <Check />
         </Button>
       </Show>

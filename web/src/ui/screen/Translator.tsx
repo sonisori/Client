@@ -46,7 +46,18 @@ export const Translator = () => {
           <div class="flex w-full flex-col justify-end p-5">
             <div class="space-y-1">
               <For each={phrases()}>
-                {(phrase) => <PhraseBubble phrase={phrase} />}
+                {(phrase, index) => (
+                  <PhraseBubble
+                    phrase={phrase}
+                    onEdit={(phrase) =>
+                      setPhrases((phrases) => [
+                        ...phrases.slice(0, index()),
+                        phrase,
+                        ...phrases.slice(index() + 1),
+                      ])
+                    }
+                  />
+                )}
               </For>
             </div>
           </div>
