@@ -2,6 +2,8 @@ import { setup } from "xstate";
 
 type SignPhraseType = "평서문" | "의문문" | "감탄문" | null;
 
+const SIGN_DETECTOR_CLOSE_ANIMATION_DELAY = 200;
+
 export const translatorScreenMachine = setup({
   types: {
     context: {} as {
@@ -9,7 +11,11 @@ export const translatorScreenMachine = setup({
     },
     events: {} as
       | {
-          type: "INPUT_TEXT_LEFT" | "INPUT_TEXT_RIGHT" | "DONE";
+          type:
+            | "INPUT_TEXT_LEFT"
+            | "INPUT_TEXT_RIGHT"
+            | "DONE"
+            | "DONE_AFTER_ANIMATION";
         }
       | {
           type: "INPUT_SIGN_LEFT";
@@ -30,6 +36,11 @@ export const translatorScreenMachine = setup({
         INPUT_TEXT_RIGHT: { target: "inputting.right.text" },
       },
     },
+    idleAfterAnimation: {
+      after: {
+        [SIGN_DETECTOR_CLOSE_ANIMATION_DELAY]: { target: "#idle" },
+      },
+    },
     inputting: {
       initial: "left",
       states: {
@@ -39,7 +50,7 @@ export const translatorScreenMachine = setup({
             sign: {
               meta: { say: "hello" },
               on: {
-                DONE: { target: "#idle" },
+                DONE_AFTER_ANIMATION: { target: "#idle.idleAfterAnimation" },
               },
             },
             text: {

@@ -17,9 +17,15 @@ export const Translator = () => {
   return (
     <MenuLayout>
       <div class="fixed inset-y-0 left-72 right-0">
-        <Show when={snapshot.matches({ inputting: { left: "sign" } })}>
+        <Show
+          when={
+            snapshot.matches({ inputting: { left: "sign" } }) ||
+            snapshot.matches("idleAfterAnimation")
+          }
+        >
           <SignDetector
-            onDone={() => {
+            onDone={() => send({ type: "DONE_AFTER_ANIMATION" })}
+            onClosed={() => {
               setPhrases((phrases) => [
                 ...phrases,
                 {
@@ -28,7 +34,6 @@ export const Translator = () => {
                   type: "sign",
                 },
               ]);
-              send({ type: "DONE" });
             }}
           />
         </Show>

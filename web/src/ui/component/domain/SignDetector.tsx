@@ -14,7 +14,10 @@ import { Button } from "../base/Button";
 import { ScrollArea } from "../base/ScrollArea";
 import { Dropdown } from "../Dropdown";
 
-export const SignDetector = (props: { onDone: () => void }) => {
+export const SignDetector = (props: {
+  onDone: () => void;
+  onClosed?: () => void;
+}) => {
   const [words, setWords] = createSignal<Word[]>([]);
   const [streamStarted, setStreamStarted] = createSignal(false);
   const [closed, setClosed] = createSignal(false);
@@ -31,7 +34,7 @@ export const SignDetector = (props: { onDone: () => void }) => {
   });
 
   const trackClose = createReaction(() =>
-    setTimeout(() => props.onDone(), 200),
+    setTimeout(() => props.onClosed?.(), 200),
   );
   trackClose(closed);
 
@@ -107,7 +110,10 @@ export const SignDetector = (props: { onDone: () => void }) => {
           <Button
             size="sm"
             class="absolute right-5 top-5"
-            onClick={() => setClosed(true)}
+            onClick={() => {
+              setClosed(true);
+              props.onDone();
+            }}
           >
             마침
           </Button>
