@@ -21,6 +21,7 @@ const DELAY = 1000;
 const TRANSLATE_MAP = { x: "translateX", y: "translateY" } as const;
 const SIZE_MAP = { x: "width", y: "height" } as const;
 const DELTA_MAP = { x: "deltaX", y: "deltaY" } as const;
+const MOVEMENT_MAP = { x: "movementX", y: "movementY" } as const;
 
 const scrollAreaMachine = setup({
   types: {} as {
@@ -100,7 +101,6 @@ const scrollAreaMachine = setup({
     interacting: {
       on: {
         POINTER_INACTIVE: "visible",
-        POINTER_LEAVE: "hidden",
         SET_OFFSET: { actions: "setOffset" },
       },
     },
@@ -194,6 +194,35 @@ export const ScrollArea = (props: {
     });
   });
 
+  const handlePointerMove = (e: PointerEvent) => {
+    send({
+      type: "SET_OFFSET",
+      offset: getSafeOffset(
+        snapshot.context.offset + e[MOVEMENT_MAP[props.direction]],
+      ),
+    });
+  };
+  createEffect(
+    on(
+      () => snapshot.matches("interacting"),
+      () => {
+        if (snapshot.matches("interacting")) {
+          window.addEventListener("pointermove", handlePointerMove);
+          window.addEventListener(
+            "pointerup",
+            () => {
+              send({ type: "POINTER_INACTIVE" });
+            },
+            { once: true },
+          );
+        } else {
+          window.removeEventListener("pointermove", handlePointerMove);
+          document.body.style.userSelect = "auto";
+        }
+      },
+    ),
+  );
+
   return (
     <div
       ref={setScrollAreaContainer}
@@ -228,11 +257,19 @@ export const ScrollArea = (props: {
           })}
         >
           <div
-            class={cn("rounded-full bg-border", {
-              "transition-transform duration-500": snapshot.matches("hidden"),
-              "h-1.5": props.direction === "x",
-              "w-1.5": props.direction === "y",
-            })}
+            onPointerDown={() => {
+              send({ type: "POINTER_ACTIVE" });
+              document.body.style.userSelect = "none";
+            }}
+            class={cn(
+              "rounded-full bg-border transition-colors hover:bg-ring/50",
+              {
+                "transition-transform duration-500": snapshot.matches("hidden"),
+                "h-1.5": props.direction === "x",
+                "w-1.5": props.direction === "y",
+                "bg-ring/50": snapshot.matches("interacting"),
+              },
+            )}
             style={{
               [SIZE_MAP[props.direction]]: `${scrollHandleSize()}px`,
               transform: `${TRANSLATE_MAP[props.direction]}(${

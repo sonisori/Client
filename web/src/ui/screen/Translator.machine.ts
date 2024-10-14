@@ -11,11 +11,7 @@ export const translatorScreenMachine = setup({
     },
     events: {} as
       | {
-          type:
-            | "INPUT_TEXT_LEFT"
-            | "INPUT_TEXT_RIGHT"
-            | "DONE"
-            | "DONE_AFTER_ANIMATION";
+          type: "DONE" | "DONE_AFTER_ANIMATION";
         }
       | {
           type: "INPUT_SIGN_LEFT";
@@ -32,8 +28,6 @@ export const translatorScreenMachine = setup({
     idle: {
       on: {
         INPUT_SIGN_LEFT: { target: "inputting.left.sign" },
-        INPUT_TEXT_LEFT: { target: "inputting.left.text" },
-        INPUT_TEXT_RIGHT: { target: "inputting.right.text" },
       },
     },
     idleAfterAnimation: {
@@ -48,24 +42,8 @@ export const translatorScreenMachine = setup({
           initial: "sign",
           states: {
             sign: {
-              meta: { say: "hello" },
               on: {
                 DONE_AFTER_ANIMATION: { target: "#idle.idleAfterAnimation" },
-              },
-            },
-            text: {
-              on: {
-                DONE: { target: "#idle" },
-              },
-            },
-          },
-        },
-        right: {
-          initial: "text",
-          states: {
-            text: {
-              on: {
-                DONE: { target: "#idle" },
               },
             },
           },
