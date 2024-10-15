@@ -18,6 +18,7 @@
     "clsx": "^2.1.1",
     "solid-js": "^1.8.20",
     "tailwind-merge": "^2.5.3",
+    "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss-animate": "^1.0.7",
     "xstate": "^5.18.2"
   },
