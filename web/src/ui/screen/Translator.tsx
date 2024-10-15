@@ -1,9 +1,9 @@
 import { useMachine } from "@xstate/solid";
-import { For, createSignal, Show } from "solid-js";
+import { For, createSignal, Show, createEffect, on } from "solid-js";
 
 import { Phrase } from "../../service/type/phrase";
 import { Button } from "../component/base/Button";
-import { ScrollArea } from "../component/base/ScrollArea";
+import { ScrollArea } from "../component/base/ScrollAreaV2";
 import { PhraseBubble } from "../component/domain/PhraseBubble";
 import { SignDetector } from "../component/domain/SignDetector";
 import { Dropdown } from "../component/Dropdown";
@@ -13,6 +13,16 @@ import { translatorScreenMachine } from "./Translator.machine";
 export const Translator = () => {
   const [snapshot, send] = useMachine(translatorScreenMachine);
   const [phrases, setPhrases] = createSignal<Phrase[]>([]);
+  const [viewport, setViewport] = createSignal<HTMLElement>();
+
+  createEffect(
+    on(
+      () => snapshot.value,
+      () => {
+        viewport()?.scrollTo({ top: Number.MAX_SAFE_INTEGER });
+      },
+    ),
+  );
 
   return (
     <MenuLayout>
@@ -38,15 +48,14 @@ export const Translator = () => {
           />
         </Show>
         <ScrollArea
-          disableAnimation
-          direction="y"
+          viewportRef={setViewport}
+          direction="vertical"
           class="absolute inset-x-0 bottom-[77px]"
           style={{
             top: snapshot.matches({ inputting: { left: "sign" } })
               ? "calc(50vh + 70px)"
               : "0",
           }}
-          defaultOffset={phrases().length * 500}
         >
           <div class="flex w-full flex-col justify-end p-5">
             <div class="space-y-1">

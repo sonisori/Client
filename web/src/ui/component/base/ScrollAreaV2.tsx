@@ -64,7 +64,7 @@ const scrollAreaMachine = setup({
   },
 });
 
-const scrollAreaVariant = cva("scrollbar-hide", {
+const scrollAreaVariant = cva("scrollbar-hide size-full", {
   variants: {
     direction: {
       vertical: "overflow-y-scroll",
@@ -133,6 +133,7 @@ export const ScrollArea = (props: {
   direction: Direction;
   class?: string;
   style?: JSX.CSSProperties;
+  viewportRef?: (el: HTMLDivElement) => void;
 }) => {
   const [snapshot, send] = useMachine(scrollAreaMachine);
 
@@ -191,17 +192,16 @@ export const ScrollArea = (props: {
   return (
     <div
       ref={setRoot}
-      class="relative"
+      class={cn("relative", props.class)}
+      style={props.style}
       onPointerEnter={() => send({ type: "POINTER_ENTER" })}
       onPointerLeave={() => send({ type: "POINTER_LEAVE" })}
     >
       <div
-        ref={setViewport}
-        style={props.style}
-        class={cn(
-          scrollAreaVariant({ direction: props.direction }),
-          props.class,
-        )}
+        ref={(ref) =>
+          [setViewport, props.viewportRef].forEach((fn) => fn?.(ref))
+        }
+        class={scrollAreaVariant({ direction: props.direction })}
         onScroll={(e) =>
           send({
             type: "SET_OFFSET",
