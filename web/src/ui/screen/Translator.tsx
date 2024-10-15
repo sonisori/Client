@@ -1,5 +1,5 @@
 import { useMachine } from "@xstate/solid";
-import { For, createSignal, Show, createEffect, on } from "solid-js";
+import { For, createSignal, createEffect } from "solid-js";
 
 import { Phrase } from "../../service/type/phrase";
 import { Button } from "../component/base/Button";
@@ -12,41 +12,34 @@ import { translatorScreenMachine } from "./Translator.machine";
 
 export const Translator = () => {
   const [snapshot, send] = useMachine(translatorScreenMachine);
+
   const [phrases, setPhrases] = createSignal<Phrase[]>([]);
   const [viewport, setViewport] = createSignal<HTMLElement>();
 
-  createEffect(
-    on(
-      () => snapshot.value,
-      () => {
-        viewport()?.scrollTo({ top: Number.MAX_SAFE_INTEGER });
-      },
-    ),
-  );
+  createEffect<typeof snapshot.value>((prevState) => {
+    if (!snapshot.matches(prevState)) {
+      viewport()?.scrollTo({ top: Number.MAX_SAFE_INTEGER });
+    }
+    return snapshot.value;
+  }, snapshot.value);
 
   return (
     <MenuLayout>
       <div class="fixed inset-y-0 left-72 right-0">
-        <Show
-          when={
-            snapshot.matches({ inputting: { left: "sign" } }) ||
-            snapshot.matches("idleAfterAnimation")
-          }
-        >
-          <SignDetector
-            onDone={() => send({ type: "DONE_AFTER_ANIMATION" })}
-            onClosed={() => {
-              setPhrases((phrases) => [
-                ...phrases,
-                {
-                  author: "left",
-                  text: `수어로 인식한 문장이 표시됩니다. ${phrases.length + 1}`,
-                  type: "sign",
-                },
-              ]);
-            }}
-          />
-        </Show>
+        <SignDetector
+          open={snapshot.matches({ inputting: { left: "sign" } })}
+          onDone={() => {
+            setPhrases((phrases) => [
+              ...phrases,
+              {
+                author: "left",
+                text: `수어로 인식한 문장이 표시됩니다. ${phrases.length + 1}`,
+                type: "sign",
+              },
+            ]);
+            send({ type: "DONE" });
+          }}
+        />
         <ScrollArea
           viewportRef={setViewport}
           direction="vertical"

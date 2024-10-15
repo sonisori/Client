@@ -1,10 +1,11 @@
+import { createPresence } from "@solid-primitives/presence";
 import {
   Show,
   For,
   onMount,
   createSignal,
-  createReaction,
   onCleanup,
+  JSXElement,
 } from "solid-js";
 
 import { Word } from "../../../service/type/word";
@@ -14,13 +15,30 @@ import { Button } from "../base/Button";
 import { ScrollArea } from "../base/ScrollArea";
 import { Dropdown } from "../Dropdown";
 
-export const SignDetector = (props: {
-  onDone: () => void;
-  onClosed?: () => void;
-}) => {
+const TRANSITION_DURATION = 200;
+
+const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
+  const { isMounted, isVisible } = createPresence(() => props.open, {
+    transitionDuration: TRANSITION_DURATION,
+  });
+  return (
+    <Show when={isMounted()}>
+      <div
+        class={cn("absolute inset-x-0 top-0 z-10 bg-white duration-200", {
+          "animate-out fade-out slide-out-to-top-10 fill-mode-forwards":
+            !isVisible(),
+          "animate-in fade-in slide-in-from-top-10": isVisible(),
+        })}
+      >
+        {props.children}
+      </div>
+    </Show>
+  );
+};
+
+const SignDetectorBody = (props: { onDone: () => void }) => {
   const [words, setWords] = createSignal<Word[]>([]);
   const [streamStarted, setStreamStarted] = createSignal(false);
-  const [closed, setClosed] = createSignal(false);
 
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream;
@@ -32,23 +50,12 @@ export const SignDetector = (props: {
       setStreamStarted(true);
     });
   });
-
-  const trackClose = createReaction(() =>
-    setTimeout(() => props.onClosed?.(), 200),
-  );
-  trackClose(closed);
-
   onCleanup(() => {
     stream?.getTracks().forEach((track) => track.stop());
   });
 
   return (
-    <div
-      class={cn("absolute inset-x-0 top-0 z-10 bg-white duration-200", {
-        "animate-out fade-out slide-out-to-top-10 fill-mode-forwards": closed(),
-        "animate-in fade-in slide-in-from-top-10": !closed(),
-      })}
-    >
+    <>
       <div class="flex h-[50vh] -scale-x-100 justify-center bg-gray-50">
         <video
           ref={videoRef}
@@ -111,7 +118,6 @@ export const SignDetector = (props: {
             size="sm"
             class="absolute right-5 top-5"
             onClick={() => {
-              setClosed(true);
               props.onDone();
             }}
           >
@@ -119,6 +125,14 @@ export const SignDetector = (props: {
           </Button>
         </div>
       </div>
-    </div>
+    </>
+  );
+};
+
+export const SignDetector = (props: { open: boolean; onDone: () => void }) => {
+  return (
+    <SignDetectorRoot open={props.open}>
+      <SignDetectorBody onDone={props.onDone} />
+    </SignDetectorRoot>
   );
 };
