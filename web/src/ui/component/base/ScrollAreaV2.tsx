@@ -165,8 +165,9 @@ export const ScrollArea = (props: {
 
     const onPointerMove = (e: PointerEvent) => {
       const ratio =
-        containerSize[SIZE_MAP[props.direction]]() /
-        (viewportSize[SIZE_MAP[props.direction]]() - thumbSize() - 4);
+        (1 / (viewportSize[SIZE_MAP[props.direction]]() - 4 - thumbSize())) *
+        (containerSize[SIZE_MAP[props.direction]]() -
+          viewportSize[SIZE_MAP[props.direction]]());
       viewport()![SCROLL_OFFSET_MAP[props.direction]] =
         startScroll + (e[CLIENT_MAP[props.direction]] - startClient) * ratio;
       send({
