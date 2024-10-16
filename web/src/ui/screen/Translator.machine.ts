@@ -14,6 +14,7 @@ export const translatorScreenMachine = setup({
       | { type: "INPUT_TEXT_LEFT" }
       | { type: "INPUT_TEXT_RIGHT" }
       | { type: "INPUT_SIGN_LEFT"; signPhraseType: SignPhraseType },
+    tags: "" as "idle" | "inputting",
   },
   actions: {
     flagInitialIdle: assign({ initialIdle: false }),
@@ -27,6 +28,7 @@ export const translatorScreenMachine = setup({
   initial: "idle",
   states: {
     idle: {
+      tags: "idle",
       on: {
         INPUT_SIGN_LEFT: {
           target: "inputting left sign",
@@ -48,11 +50,13 @@ export const translatorScreenMachine = setup({
       },
     },
     "inputting left sign": {
+      tags: "inputting",
       on: {
         DONE_SIGN: { target: "idle" },
       },
     },
     "inputting left text": {
+      tags: "inputting",
       after: {
         3000: "idle",
       },
@@ -61,6 +65,7 @@ export const translatorScreenMachine = setup({
       },
     },
     "inputting right text": {
+      tags: "inputting",
       after: {
         3000: "idle",
       },

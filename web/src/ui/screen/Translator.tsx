@@ -1,5 +1,6 @@
+import { createPresence } from "@solid-primitives/presence";
 import { useMachine } from "@xstate/solid";
-import { For, createSignal, createEffect, Show } from "solid-js";
+import { For, createSignal, createEffect, Show, createMemo } from "solid-js";
 
 import { Phrase } from "../../service/type/phrase";
 import { cn } from "../../service/util/cn";
@@ -12,7 +13,7 @@ import { MenuLayout } from "../layout/MenuLayout";
 import { translatorScreenMachine } from "./Translator.machine";
 
 const STATE_HELP_LABEL_MAP = {
-  idle: "대기",
+  idle: null,
   "inputting left sign": "수어를 인식하면 SoniSori AI가 한국어로 번역합니다.",
   "inputting left text": "키보드를 사용해 텍스트를 입력할 수 있습니다.",
   "inputting right text": "키보드를 사용해 텍스트를 입력할 수 있습니다.",
@@ -41,6 +42,19 @@ export const Translator = () => {
     }
     return snapshot.value;
   }, snapshot.value);
+
+  const idlePresence = createPresence(() => snapshot.hasTag("idle"), {
+    transitionDuration: 200,
+  });
+  const inputtingPresence = createPresence(() => snapshot.hasTag("inputting"), {
+    transitionDuration: 200,
+  });
+  const inputtingHelpMemo = createMemo<
+    (typeof STATE_HELP_LABEL_MAP)[typeof snapshot.value]
+  >(
+    (prev) => STATE_HELP_LABEL_MAP[snapshot.value] ?? prev,
+    STATE_HELP_LABEL_MAP[snapshot.value],
+  );
 
   return (
     <MenuLayout>
@@ -103,28 +117,20 @@ export const Translator = () => {
           </div>
         </ScrollArea>
         <div
-          class="fixed bottom-0 left-72 right-0 z-10 flex items-center border-t bg-white px-5"
+          class="fixed bottom-0 left-72 right-0 z-10 overflow-hidden border-t bg-white"
           style={{ height: BOTTOM_BAR_HEIGHT_PX }}
         >
-          <Show
-            when={snapshot.matches("idle")}
-            fallback={
-              <p
-                class="text-sm text-primary/80 duration-200 animate-in fade-in slide-in-from-top-5"
-                onClick={() =>
-                  snapshot.can({ type: "DONE_TEXT" }) &&
-                  send({ type: "DONE_TEXT" })
-                }
-              >
-                {STATE_HELP_LABEL_MAP[snapshot.value]}
-              </p>
-            }
-          >
+          <Show when={idlePresence.isMounted()}>
             <div
-              class={cn("flex flex-1 justify-between", {
-                "duration-200 animate-in fade-in slide-in-from-bottom-5":
-                  !snapshot.context.initialIdle,
-              })}
+              class={cn(
+                "absolute inset-x-5 inset-y-0 flex items-center justify-between duration-200 fill-mode-forwards",
+                {
+                  "animate-in fade-in slide-in-from-bottom-10":
+                    !snapshot.context.initialIdle && idlePresence.isVisible(),
+                  "animate-out fade-out slide-out-to-bottom-10":
+                    !idlePresence.isVisible(),
+                },
+              )}
             >
               <div class="flex gap-5">
                 <Dropdown
@@ -191,6 +197,25 @@ export const Translator = () => {
                 </Button>
               </div>
             </div>
+          </Show>
+          <Show when={inputtingPresence.isMounted()}>
+            <p
+              class={cn(
+                "absolute inset-x-5 inset-y-0 flex items-center text-sm text-primary/80 duration-200 fill-mode-forwards",
+                {
+                  "animate-in fade-in slide-in-from-top-10":
+                    inputtingPresence.isVisible(),
+                  "animate-out fade-out slide-out-to-top-10":
+                    !inputtingPresence.isVisible(),
+                },
+              )}
+              onClick={() =>
+                snapshot.can({ type: "DONE_TEXT" }) &&
+                send({ type: "DONE_TEXT" })
+              }
+            >
+              {inputtingHelpMemo()}
+            </p>
           </Show>
         </div>
       </div>
