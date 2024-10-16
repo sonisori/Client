@@ -14,6 +14,13 @@ import { cn } from "../../../service/util/cn";
 import { PropsOf } from "../../../service/util/type";
 import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverTitle,
+  PopoverTrigger,
+} from "../base/Popover";
 import { ScrollArea } from "../base/ScrollArea";
 import { Dropdown } from "../Dropdown";
 
@@ -134,15 +141,43 @@ const SignDetectorBody = (props: {
             >
               완료
             </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => {
-                props.onCancel();
-              }}
+            <Show
+              when={words().length > 0}
+              fallback={
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={props.onCancel}
+                >
+                  취소
+                </Button>
+              }
             >
-              취소
-            </Button>
+              <Popover>
+                <PopoverTrigger>
+                  <Button size="sm" variant="destructive">
+                    취소
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <PopoverTitle class="space-y-2">
+                    <h4 class="font-medium leading-none">입력 취소</h4>
+                    <p class="text-sm text-muted-foreground">
+                      입력한 단어가 모두 지워집니다
+                    </p>
+                  </PopoverTitle>
+                  <PopoverDescription class="mt-3 flex justify-end">
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={props.onCancel}
+                    >
+                      취소
+                    </Button>
+                  </PopoverDescription>
+                </PopoverContent>
+              </Popover>
+            </Show>
           </div>
         </div>
       </div>
