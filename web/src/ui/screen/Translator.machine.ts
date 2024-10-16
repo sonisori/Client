@@ -1,11 +1,11 @@
-import { setup } from "xstate";
+import { assign, setup } from "xstate";
 
-type SignPhraseType = "평서문" | "의문문" | "감탄문" | null;
+import { SignPhraseType } from "../../service/type/phrase";
 
 export const translatorScreenMachine = setup({
   types: {
     context: {} as {
-      signPhraseType: SignPhraseType;
+      signPhraseType: SignPhraseType | null;
     },
     events: {} as
       | {
@@ -13,7 +13,7 @@ export const translatorScreenMachine = setup({
         }
       | {
           type: "INPUT_SIGN_LEFT";
-          phraseType: SignPhraseType;
+          signPhraseType: SignPhraseType;
         },
   },
 }).createMachine({
@@ -25,7 +25,12 @@ export const translatorScreenMachine = setup({
   states: {
     idle: {
       on: {
-        INPUT_SIGN_LEFT: { target: "#root.inputting.left.sign" },
+        INPUT_SIGN_LEFT: {
+          target: "#root.inputting.left.sign",
+          actions: assign({
+            signPhraseType: ({ event }) => event.signPhraseType,
+          }),
+        },
       },
     },
     inputting: {

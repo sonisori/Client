@@ -27,6 +27,7 @@ export const Translator = () => {
     <MenuLayout>
       <div class="fixed inset-y-0 left-72 right-0">
         <SignDetector
+          signPhraseType={snapshot.context.signPhraseType!}
           open={snapshot.matches({ inputting: { left: "sign" } })}
           onDone={() => {
             setPhrases((phrases) => [
@@ -37,6 +38,9 @@ export const Translator = () => {
                 type: "sign",
               },
             ]);
+            send({ type: "DONE" });
+          }}
+          onCancel={() => {
             send({ type: "DONE" });
           }}
         />
@@ -77,29 +81,29 @@ export const Translator = () => {
                   items: [
                     {
                       title: "평서문",
-                      disabled: snapshot.matches({
-                        inputting: { left: "sign" },
-                      }),
                       onClick: () => {
-                        send({ type: "INPUT_SIGN_LEFT", phraseType: "평서문" });
+                        send({
+                          type: "INPUT_SIGN_LEFT",
+                          signPhraseType: "평서문",
+                        });
                       },
                     },
                     {
                       title: "의문문",
-                      disabled: snapshot.matches({
-                        inputting: { left: "sign" },
-                      }),
                       onClick: () => {
-                        send({ type: "INPUT_SIGN_LEFT", phraseType: "의문문" });
+                        send({
+                          type: "INPUT_SIGN_LEFT",
+                          signPhraseType: "의문문",
+                        });
                       },
                     },
                     {
                       title: "감탄문",
-                      disabled: snapshot.matches({
-                        inputting: { left: "sign" },
-                      }),
                       onClick: () => {
-                        send({ type: "INPUT_SIGN_LEFT", phraseType: "감탄문" });
+                        send({
+                          type: "INPUT_SIGN_LEFT",
+                          signPhraseType: "감탄문",
+                        });
                       },
                     },
                   ],

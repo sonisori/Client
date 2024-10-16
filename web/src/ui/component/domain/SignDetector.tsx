@@ -8,8 +8,10 @@ import {
   JSXElement,
 } from "solid-js";
 
+import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
+import { PropsOf } from "../../../service/util/type";
 import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
 import { ScrollArea } from "../base/ScrollArea";
@@ -36,7 +38,11 @@ const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
   );
 };
 
-const SignDetectorBody = (props: { onDone: () => void }) => {
+const SignDetectorBody = (props: {
+  onDone: () => void;
+  onCancel: () => void;
+  signPhraseType: SignPhraseType;
+}) => {
   const [words, setWords] = createSignal<Word[]>([]);
   const [streamStarted, setStreamStarted] = createSignal(false);
 
@@ -56,14 +62,19 @@ const SignDetectorBody = (props: { onDone: () => void }) => {
 
   return (
     <>
-      <div class="flex h-[50vh] -scale-x-100 justify-center bg-gray-50">
+      <div class="relative flex h-[50vh] justify-center bg-gray-50">
         <video
           ref={videoRef}
-          class={cn("h-full duration-200", { "opacity-0": !streamStarted() })}
+          class={cn("h-full -scale-x-100 duration-200", {
+            "opacity-0": !streamStarted(),
+          })}
           autoplay
           playsinline
           onClick={() => setWords((words) => [...words, { text: "테스트" }])}
         />
+        <Badge variant="outline" class="absolute bottom-5 right-5">
+          {props.signPhraseType}
+        </Badge>
       </div>
       <div class="border-b">
         <div class="relative">
@@ -114,25 +125,42 @@ const SignDetectorBody = (props: { onDone: () => void }) => {
               </For>
             </div>
           </ScrollArea>
-          <Button
-            size="sm"
-            class="absolute right-5 top-5"
-            onClick={() => {
-              props.onDone();
-            }}
-          >
-            마침
-          </Button>
+          <div class="absolute right-5 top-5 flex gap-3">
+            <Button
+              size="sm"
+              onClick={() => {
+                props.onDone();
+              }}
+            >
+              완료
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => {
+                props.onCancel();
+              }}
+            >
+              취소
+            </Button>
+          </div>
         </div>
       </div>
     </>
   );
 };
 
-export const SignDetector = (props: { open: boolean; onDone: () => void }) => {
+export const SignDetector = (
+  props: Omit<PropsOf<typeof SignDetectorRoot>, "children"> &
+    PropsOf<typeof SignDetectorBody>,
+) => {
   return (
     <SignDetectorRoot open={props.open}>
-      <SignDetectorBody onDone={props.onDone} />
+      <SignDetectorBody
+        onDone={props.onDone}
+        signPhraseType={props.signPhraseType}
+        onCancel={props.onCancel}
+      />
     </SignDetectorRoot>
   );
 };
