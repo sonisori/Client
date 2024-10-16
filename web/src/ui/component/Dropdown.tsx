@@ -34,7 +34,6 @@ export const Dropdown = (props: {
                 {(item) => (
                   <DropdownMenuItem
                     disabled={item.disabled}
-                    title="dfdf"
                     onClick={item.onClick}
                   >
                     {item.title}

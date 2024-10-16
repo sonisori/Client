@@ -86,7 +86,7 @@ const SignDetectorBody = (props: { onDone: () => void }) => {
                           {
                             title: "여기부터 다시 입력",
                             onClick: () => {
-                              setWords((words) => words.slice(0, index()));
+                              setWords((words) => words.slice(0, index() + 1));
                             },
                           },
                           {

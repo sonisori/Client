@@ -116,7 +116,7 @@ const scrollAreaVariant = cva("relative", {
   },
 });
 
-const scrollBarVariant = cva("absolute transition-opacity duration-500", {
+const scrollBarVariant = cva("absolute", {
   variants: {
     direction: {
       x: "bottom-0.5 inset-x-0.5",
@@ -195,10 +195,13 @@ export const ScrollArea = (props: {
   });
 
   const handlePointerMove = (e: PointerEvent) => {
+    const ratio =
+      (1 / (sizeOf(containerSize) - 4 - scrollHandleSize())) *
+      (sizeOf(childrenSize) - sizeOf(containerSize));
     send({
       type: "SET_OFFSET",
       offset: getSafeOffset(
-        snapshot.context.offset + e[MOVEMENT_MAP[props.direction]],
+        snapshot.context.offset + e[MOVEMENT_MAP[props.direction]] * ratio,
       ),
     });
   };
@@ -251,23 +254,19 @@ export const ScrollArea = (props: {
         {props.children}
       </div>
       <Show when={showScrollbar()}>
-        <div
-          class={cn(scrollBarVariant({ direction: props.direction }), {
-            "opacity-0": !snapshot.context.showScrollbar,
-          })}
-        >
+        <div class={cn(scrollBarVariant({ direction: props.direction }))}>
           <div
             onPointerDown={() => {
               send({ type: "POINTER_ACTIVE" });
               document.body.style.userSelect = "none";
             }}
             class={cn(
-              "rounded-full bg-border transition-colors hover:bg-ring/50",
+              "rounded-full bg-black opacity-10 transition-opacity duration-200 hover:opacity-30",
               {
-                "transition-transform duration-500": snapshot.matches("hidden"),
+                "opacity-0": !snapshot.context.showScrollbar,
                 "h-1.5": props.direction === "x",
                 "w-1.5": props.direction === "y",
-                "bg-ring/50": snapshot.matches("interacting"),
+                "opacity-30": snapshot.matches("interacting"),
               },
             )}
             style={{
