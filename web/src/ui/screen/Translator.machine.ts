@@ -6,6 +6,7 @@ export const translatorScreenMachine = setup({
   types: {
     context: {} as {
       signPhraseType: SignPhraseType | null;
+      initialIdle: boolean;
     },
     events: {} as
       | {
@@ -16,9 +17,13 @@ export const translatorScreenMachine = setup({
           signPhraseType: SignPhraseType;
         },
   },
+  actions: {
+    flagInitialIdle: assign({ initialIdle: false }),
+  },
 }).createMachine({
   context: {
     signPhraseType: null,
+    initialIdle: true,
   },
   id: "root",
   initial: "idle",
@@ -26,26 +31,19 @@ export const translatorScreenMachine = setup({
     idle: {
       on: {
         INPUT_SIGN_LEFT: {
-          target: "#root.inputting.left.sign",
-          actions: assign({
-            signPhraseType: ({ event }) => event.signPhraseType,
-          }),
+          target: "inputting left sign",
+          actions: [
+            "flagInitialIdle",
+            assign({
+              signPhraseType: ({ event }) => event.signPhraseType,
+            }),
+          ],
         },
       },
     },
-    inputting: {
-      initial: "left",
-      states: {
-        left: {
-          initial: "sign",
-          states: {
-            sign: {
-              on: {
-                DONE: { target: "#root.idle" },
-              },
-            },
-          },
-        },
+    "inputting left sign": {
+      on: {
+        DONE: { target: "idle" },
       },
     },
   },

@@ -1,7 +1,8 @@
 import { useMachine } from "@xstate/solid";
-import { For, createSignal, createEffect } from "solid-js";
+import { For, createSignal, createEffect, Show } from "solid-js";
 
 import { Phrase } from "../../service/type/phrase";
+import { cn } from "../../service/util/cn";
 import { Button } from "../component/base/Button";
 import { ScrollArea } from "../component/base/ScrollAreaV2";
 import { PhraseBubble } from "../component/domain/PhraseBubble";
@@ -9,6 +10,13 @@ import { SignDetector } from "../component/domain/SignDetector";
 import { Dropdown } from "../component/Dropdown";
 import { MenuLayout } from "../layout/MenuLayout";
 import { translatorScreenMachine } from "./Translator.machine";
+
+const STATE_HELP_LABEL_MAP = {
+  idle: "대기",
+  "inputting left sign": "수어로 문장을 입력하세요.",
+} as const;
+
+const BOTTOM_BAR_HEIGHT_PX = "77px";
 
 export const Translator = () => {
   const [snapshot, send] = useMachine(translatorScreenMachine);
@@ -28,7 +36,7 @@ export const Translator = () => {
       <div class="fixed inset-y-0 left-72 right-0">
         <SignDetector
           signPhraseType={snapshot.context.signPhraseType!}
-          open={snapshot.matches({ inputting: { left: "sign" } })}
+          open={snapshot.matches("inputting left sign")}
           onDone={() => {
             setPhrases((phrases) => [
               ...phrases,
@@ -47,14 +55,24 @@ export const Translator = () => {
         <ScrollArea
           viewportRef={setViewport}
           direction="vertical"
-          class="absolute inset-x-0 bottom-[77px]"
+          class="absolute inset-x-0"
           style={{
-            top: snapshot.matches({ inputting: { left: "sign" } })
+            // sign-detector의 바닥에 붙도록
+            top: snapshot.matches("inputting left sign")
               ? "calc(50vh + 70px)"
               : "0",
+            bottom: BOTTOM_BAR_HEIGHT_PX,
           }}
         >
-          <div class="flex w-full flex-col justify-end p-5">
+          <div
+            class="flex w-full flex-col justify-end p-5"
+            style={{
+              // 말풍선이 scroll-area의 바닥에 위치하도록
+              "min-height": snapshot.matches("inputting left sign")
+                ? `calc(50vh - 70px - ${BOTTOM_BAR_HEIGHT_PX})`
+                : `calc(100vh - ${BOTTOM_BAR_HEIGHT_PX})`,
+            }}
+          >
             <div class="space-y-1">
               <For each={phrases()}>
                 {(phrase, index) => (
@@ -73,50 +91,69 @@ export const Translator = () => {
             </div>
           </div>
         </ScrollArea>
-        <div class="fixed bottom-0 left-72 right-0 z-10 flex justify-between border-t bg-white p-5">
-          <div class="flex gap-5">
-            <Dropdown
-              menu={[
-                {
-                  items: [
-                    {
-                      title: "평서문",
-                      onClick: () => {
-                        send({
-                          type: "INPUT_SIGN_LEFT",
-                          signPhraseType: "평서문",
-                        });
-                      },
-                    },
-                    {
-                      title: "의문문",
-                      onClick: () => {
-                        send({
-                          type: "INPUT_SIGN_LEFT",
-                          signPhraseType: "의문문",
-                        });
-                      },
-                    },
-                    {
-                      title: "감탄문",
-                      onClick: () => {
-                        send({
-                          type: "INPUT_SIGN_LEFT",
-                          signPhraseType: "감탄문",
-                        });
-                      },
-                    },
-                  ],
-                },
-              ]}
+        <div
+          class="fixed bottom-0 left-72 right-0 z-10 flex items-center border-t bg-white px-5"
+          style={{ height: BOTTOM_BAR_HEIGHT_PX }}
+        >
+          <Show
+            when={snapshot.matches("idle")}
+            fallback={
+              <p class="text-sm text-primary/80 duration-200 animate-in fade-in slide-in-from-top-5">
+                {STATE_HELP_LABEL_MAP[snapshot.value]}
+              </p>
+            }
+          >
+            <div
+              class={cn("flex flex-1 justify-between", {
+                "duration-200 animate-in fade-in slide-in-from-bottom-5":
+                  !snapshot.context.initialIdle,
+              })}
             >
-              <Button>수어 인식</Button>
-            </Dropdown>
-            <Button>텍스트 입력</Button>
-          </div>
-          <div class="flex gap-5">
-            <Button variant="secondary">텍스트 입력</Button>
-          </div>
+              <div class="flex gap-5">
+                <Dropdown
+                  menu={[
+                    {
+                      items: [
+                        {
+                          title: "평서문",
+                          onClick: () => {
+                            send({
+                              type: "INPUT_SIGN_LEFT",
+                              signPhraseType: "평서문",
+                            });
+                          },
+                        },
+                        {
+                          title: "의문문",
+                          onClick: () => {
+                            send({
+                              type: "INPUT_SIGN_LEFT",
+                              signPhraseType: "의문문",
+                            });
+                          },
+                        },
+                        {
+                          title: "감탄문",
+                          onClick: () => {
+                            send({
+                              type: "INPUT_SIGN_LEFT",
+                              signPhraseType: "감탄문",
+                            });
+                          },
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  <Button>수어 인식</Button>
+                </Dropdown>
+                <Button>텍스트 입력</Button>
+              </div>
+              <div class="flex gap-5">
+                <Button variant="secondary">텍스트 입력</Button>
+              </div>
+            </div>
+          </Show>
         </div>
       </div>
     </MenuLayout>
