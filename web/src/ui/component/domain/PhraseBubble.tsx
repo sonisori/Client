@@ -1,15 +1,11 @@
-import { TextField } from "@kobalte/core/text-field";
 import { cva } from "class-variance-authority";
 import { createSignal, Show } from "solid-js";
 
 import { type Phrase } from "../../../service/type/phrase";
 import { cn } from "../../../service/util/cn";
-import { Check } from "../../icon/Check";
-import { Pencil } from "../../icon/Pencil";
-import { Button } from "../base/Button";
 
 const bubbleVariants = cva(
-  "max-w-[512px] rounded-2xl px-2 py-1.5 break-all whitespace-pre-line",
+  "max-w-[512px] rounded-2xl px-2 py-1.5 break-all whitespace-pre-wrap",
   {
     variants: {
       author: {
@@ -24,51 +20,43 @@ export const PhraseBubble = (props: {
   phrase: Phrase;
   onEdit: (phrase: Phrase) => void;
 }) => {
-  const [text, setText] = createSignal<string | null>(null);
-  const mode = () => (typeof text() === "string" ? "edit" : "view");
+  // eslint-disable-next-line solid/reactivity
+  const [text, setText] = createSignal(props.phrase.text);
+
   return (
     <div
       class={cn("group flex justify-start gap-1", {
         "flex-row-reverse": props.phrase.author === "right",
       })}
     >
-      <Show
-        when={mode() === "edit"}
-        fallback={
-          <>
-            <p class={cn(bubbleVariants({ author: props.phrase.author }))}>
-              {props.phrase.text}
-            </p>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                setText(props.phrase.text);
-              }}
-              class="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            >
-              <Pencil />
-            </Button>
-          </>
-        }
-      >
-        <TextField value={text() as string} onChange={setText}>
-          <TextField.TextArea
-            autoResize
-            class={cn(bubbleVariants({ author: props.phrase.author }), "w-80")}
-          />
-        </TextField>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            props.onEdit({ ...props.phrase, text: text() as string });
-            setText(null);
-          }}
-        >
-          <Check />
-        </Button>
-      </Show>
+      <div class="relative">
+        {/* trick: p 의 사이즈를 따르도록 한다. */}
+        {/* text == '' 일때는 placeholder를 표시하기 위해 p를 무시한다. */}
+        {/* fix: 문자열이 개행으로 끝나는 경우 높이가 늘어나지 않음 */}
+        <Show when={text()}>
+          <p
+            aria-hidden
+            class={cn(
+              bubbleVariants({ author: props.phrase.author }),
+              "invisible",
+            )}
+          >
+            {text()}
+          </p>
+        </Show>
+        <textarea
+          onInput={(e) => setText(e.currentTarget.value)}
+          value={text()}
+          class={cn(
+            bubbleVariants({ author: props.phrase.author }),
+            text() ? "absolute inset-0" : "h-9",
+            "block overflow-hidden",
+            "outline-none",
+            "resize-none",
+          )}
+          placeholder="텍스트를 입력하세요"
+        />
+      </div>
     </div>
   );
 };

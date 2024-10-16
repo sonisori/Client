@@ -13,14 +13,18 @@ import { translatorScreenMachine } from "./Translator.machine";
 
 const STATE_HELP_LABEL_MAP = {
   idle: "대기",
-  "inputting left sign": "수어로 문장을 입력하세요.",
+  "inputting left sign": "수어를 인식하면 SoniSori AI가 한국어로 번역합니다.",
 } as const;
 
 const BOTTOM_BAR_HEIGHT_PX = "77px";
 
 const DEFAULT_PHRASES: Phrase[] = [
   { author: "left", text: "안녕하세요! SoniSori입니다.", type: "text" },
-  { author: "right", text: "아래 버튼을 눌러 대화를 시작하세요", type: "text" },
+  {
+    author: "right",
+    text: "아래 버튼을 눌러 대화를 시작하세요.",
+    type: "text",
+  },
 ];
 
 export const Translator = () => {
