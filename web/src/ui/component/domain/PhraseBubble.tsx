@@ -28,9 +28,8 @@ export const PhraseBubble = (props: {
   const mode = () => (typeof text() === "string" ? "edit" : "view");
   return (
     <div
-      class={cn("group flex gap-1", {
-        "justify-start": props.phrase.author === "left",
-        "justify-end": props.phrase.author === "right",
+      class={cn("group flex justify-start gap-1", {
+        "flex-row-reverse": props.phrase.author === "right",
       })}
     >
       <Show
