@@ -9,7 +9,8 @@ export const translatorScreenMachine = setup({
       initialIdle: boolean;
     },
     events: {} as
-      | { type: "DONE" }
+      | { type: "DONE_SIGN" }
+      | { type: "DONE_TEXT" }
       | { type: "INPUT_TEXT_LEFT" }
       | { type: "INPUT_TEXT_RIGHT" }
       | { type: "INPUT_SIGN_LEFT"; signPhraseType: SignPhraseType },
@@ -48,17 +49,23 @@ export const translatorScreenMachine = setup({
     },
     "inputting left sign": {
       on: {
-        DONE: { target: "idle" },
+        DONE_SIGN: { target: "idle" },
       },
     },
     "inputting left text": {
       after: {
         3000: "idle",
       },
+      on: {
+        DONE_TEXT: { target: "idle" },
+      },
     },
     "inputting right text": {
       after: {
         3000: "idle",
+      },
+      on: {
+        DONE_TEXT: { target: "idle" },
       },
     },
   },

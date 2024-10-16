@@ -57,10 +57,10 @@ export const Translator = () => {
                 type: "sign",
               },
             ]);
-            send({ type: "DONE" });
+            send({ type: "DONE_SIGN" });
           }}
           onCancel={() => {
-            send({ type: "DONE" });
+            send({ type: "DONE_SIGN" });
           }}
         />
         <ScrollArea
@@ -109,7 +109,13 @@ export const Translator = () => {
           <Show
             when={snapshot.matches("idle")}
             fallback={
-              <p class="text-sm text-primary/80 duration-200 animate-in fade-in slide-in-from-top-5">
+              <p
+                class="text-sm text-primary/80 duration-200 animate-in fade-in slide-in-from-top-5"
+                onClick={() =>
+                  snapshot.can({ type: "DONE_TEXT" }) &&
+                  send({ type: "DONE_TEXT" })
+                }
+              >
                 {STATE_HELP_LABEL_MAP[snapshot.value]}
               </p>
             }
