@@ -14,16 +14,18 @@ import { translatorScreenMachine } from "./Translator.machine";
 const STATE_HELP_LABEL_MAP = {
   idle: "대기",
   "inputting left sign": "수어를 인식하면 SoniSori AI가 한국어로 번역합니다.",
+  "inputting left text": "키보드를 사용해 텍스트를 입력할 수 있습니다.",
+  "inputting right text": "키보드를 사용해 텍스트를 입력할 수 있습니다.",
 } as const;
 
 const BOTTOM_BAR_HEIGHT_PX = "77px";
 
 const DEFAULT_PHRASES: Phrase[] = [
-  { author: "left", text: "안녕하세요! SoniSori입니다.", type: "text" },
+  { author: "left", text: "안녕하세요! SoniSori입니다.", type: "sign" },
   {
     author: "right",
     text: "아래 버튼을 눌러 대화를 시작하세요.",
-    type: "text",
+    type: "sign",
   },
 ];
 
@@ -90,16 +92,10 @@ export const Translator = () => {
                     : phrases()
                 }
               >
-                {(phrase, index) => (
+                {(phrase) => (
                   <PhraseBubble
                     phrase={phrase}
-                    onEdit={(phrase) =>
-                      setPhrases((phrases) => [
-                        ...phrases.slice(0, index()),
-                        phrase,
-                        ...phrases.slice(index() + 1),
-                      ])
-                    }
+                    autoFocus={phrase.type === "text"}
                   />
                 )}
               </For>
@@ -162,10 +158,31 @@ export const Translator = () => {
                 >
                   <Button>수어 인식</Button>
                 </Dropdown>
-                <Button>텍스트 입력</Button>
+                <Button
+                  onClick={() => {
+                    send({ type: "INPUT_TEXT_LEFT" });
+                    setPhrases((phrases) => [
+                      ...phrases,
+                      { author: "left", text: "", type: "text" },
+                    ]);
+                  }}
+                >
+                  텍스트 입력
+                </Button>
               </div>
               <div class="flex gap-5">
-                <Button variant="secondary">텍스트 입력</Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    send({ type: "INPUT_TEXT_RIGHT" });
+                    setPhrases((phrases) => [
+                      ...phrases,
+                      { author: "right", text: "", type: "text" },
+                    ]);
+                  }}
+                >
+                  텍스트 입력
+                </Button>
               </div>
             </div>
           </Show>

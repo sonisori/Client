@@ -18,7 +18,7 @@ const bubbleVariants = cva(
 
 export const PhraseBubble = (props: {
   phrase: Phrase;
-  onEdit: (phrase: Phrase) => void;
+  autoFocus?: boolean;
 }) => {
   // eslint-disable-next-line solid/reactivity
   const [text, setText] = createSignal(props.phrase.text);
@@ -47,6 +47,13 @@ export const PhraseBubble = (props: {
         <textarea
           onInput={(e) => setText(e.currentTarget.value)}
           value={text()}
+          ref={(el) => {
+            if (props.autoFocus) {
+              setTimeout(() => {
+                el.focus();
+              }, 200);
+            }
+          }}
           class={cn(
             bubbleVariants({ author: props.phrase.author }),
             text() ? "absolute inset-0" : "h-9",
