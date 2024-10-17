@@ -11,12 +11,21 @@ importers:
       '@kobalte/core':
         specifier: ^0.13.6
         version: 0.13.6(solid-js@1.9.1)
+      '@solid-primitives/presence':
+        specifier: ^0.0.6
+        version: 0.0.6(solid-js@1.9.1)
       '@solid-primitives/resize-observer':
         specifier: ^2.0.26
         version: 2.0.26(solid-js@1.9.1)
+      '@solid-primitives/scheduled':
+        specifier: ^1.4.3
+        version: 1.4.3(solid-js@1.9.1)
       '@solidjs/router':
         specifier: ^0.14.7
         version: 0.14.7(solid-js@1.9.1)
+      '@xstate/solid':
+        specifier: ^0.2.2
+        version: 0.2.2(solid-js@1.9.1)(xstate@5.18.2)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -29,9 +38,15 @@ importers:
       tailwind-merge:
         specifier: ^2.5.3
         version: 2.5.3
+      tailwind-scrollbar-hide:
+        specifier: ^1.1.7
+        version: 1.1.7
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.13)
+      xstate:
+        specifier: ^5.18.2
+        version: 5.18.2
     devDependencies:
       '@eslint/js':
         specifier: ^9.11.1
@@ -526,6 +541,11 @@ packages:
     peerDependencies:
       solid-js: ^1.6.12
 
+  '@solid-primitives/presence@0.0.6':
+    resolution: {integrity: sha512-aQDOinJ+1H90jieShy8pgupUWOGCsk+2jN/EHnHOG0A7BnC8Q4q6eSSraqujAxpRPmqAQ5TyMncVnlLSwzXy3A==}
+    peerDependencies:
+      solid-js: ^1.6.12
+
   '@solid-primitives/props@3.1.11':
     resolution: {integrity: sha512-jZAKWwvDRHjiydIumDgMj68qviIbowQ1ci7nkEAgzgvanNkhKSQV8iPgR2jMk1uv7S2ZqXYHslVQTgJel/TEyg==}
     peerDependencies:
@@ -543,6 +563,11 @@ packages:
 
   '@solid-primitives/rootless@1.4.5':
     resolution: {integrity: sha512-GFJE9GC3ojx0aUKqAUZmQPyU8fOVMtnVNrkdk2yS4kd17WqVSpXpoTmo9CnOwA+PG7FTzdIkogvfLQSLs4lrww==}
+    peerDependencies:
+      solid-js: ^1.6.12
+
+  '@solid-primitives/scheduled@1.4.3':
+    resolution: {integrity: sha512-HfWN5w7b7FEc6VPLBKnnE302h90jsLMuR28Fcf7neRGGf8jBj6wm6/UFQ00VlKexHFMR6KQ2u4VBh5a1ZcqM8g==}
     peerDependencies:
       solid-js: ^1.6.12
 
@@ -646,6 +671,15 @@ packages:
   '@typescript-eslint/visitor-keys@8.8.0':
     resolution: {integrity: sha512-8mq51Lx6Hpmd7HnA2fcHQo3YgfX1qbccxQOgZcb4tvasu//zXRaA1j5ZRFeCw/VRAdFi4mRM9DnZw0Nu0Q2d1g==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@xstate/solid@0.2.2':
+    resolution: {integrity: sha512-5hoZ5iC4LSOjZRCTtQalCQ1isMr3dE1cabnYT5WrWFH8G9eejb53FPgYUAiLgWH+xU3VG4V1hhbx669kR8GQ5w==}
+    peerDependencies:
+      solid-js: ^1.6.0
+      xstate: ^5.18.2
+    peerDependenciesMeta:
+      xstate:
+        optional: true
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1594,6 +1628,9 @@ packages:
   tailwind-merge@2.5.3:
     resolution: {integrity: sha512-d9ZolCAIzom1nf/5p4LdD5zvjmgSxY0BGgdSvmXIoMYAiPdAW/dSpP7joCDYFY7r/HkEa2qmPtkgsu0xjQeQtw==}
 
+  tailwind-scrollbar-hide@1.1.7:
+    resolution: {integrity: sha512-X324n9OtpTmOMqEgDUEA/RgLrNfBF/jwJdctaPZDzB3mppxJk7TLIDmOreEDm1Bq4R9LSPu4Epf8VSdovNU+iA==}
+
   tailwindcss-animate@1.0.7:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
     peerDependencies:
@@ -1786,6 +1823,9 @@ packages:
 
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
+
+  xstate@5.18.2:
+    resolution: {integrity: sha512-hab5VOe29D0agy8/7dH1lGw+7kilRQyXwpaChoMu4fe6rDP+nsHYhDYKfS2O4iXE7myA98TW6qMEudj/8NXEkA==}
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
@@ -2207,6 +2247,11 @@ snapshots:
       '@solid-primitives/utils': 6.2.3(solid-js@1.9.1)
       solid-js: 1.9.1
 
+  '@solid-primitives/presence@0.0.6(solid-js@1.9.1)':
+    dependencies:
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.1)
+      solid-js: 1.9.1
+
   '@solid-primitives/props@3.1.11(solid-js@1.9.1)':
     dependencies:
       '@solid-primitives/utils': 6.2.3(solid-js@1.9.1)
@@ -2228,6 +2273,10 @@ snapshots:
   '@solid-primitives/rootless@1.4.5(solid-js@1.9.1)':
     dependencies:
       '@solid-primitives/utils': 6.2.3(solid-js@1.9.1)
+      solid-js: 1.9.1
+
+  '@solid-primitives/scheduled@1.4.3(solid-js@1.9.1)':
+    dependencies:
       solid-js: 1.9.1
 
   '@solid-primitives/static-store@0.0.8(solid-js@1.9.1)':
@@ -2359,6 +2408,12 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.8.0
       eslint-visitor-keys: 3.4.3
+
+  '@xstate/solid@0.2.2(solid-js@1.9.1)(xstate@5.18.2)':
+    dependencies:
+      solid-js: 1.9.1
+    optionalDependencies:
+      xstate: 5.18.2
 
   acorn-jsx@5.3.2(acorn@8.12.1):
     dependencies:
@@ -3252,6 +3307,8 @@ snapshots:
 
   tailwind-merge@2.5.3: {}
 
+  tailwind-scrollbar-hide@1.1.7: {}
+
   tailwindcss-animate@1.0.7(tailwindcss@3.4.13):
     dependencies:
       tailwindcss: 3.4.13
@@ -3420,6 +3477,8 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   xmlchars@2.2.0: {}
+
+  xstate@5.18.2: {}
 
   yallist@3.1.1: {}
 
