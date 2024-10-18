@@ -4,6 +4,7 @@ import perfectionist from "eslint-plugin-perfectionist";
 import solid from "eslint-plugin-solid/configs/typescript";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import react from "eslint-plugin-react";
 
 export default [
   { files: ["**/*.{ts,tsx}"] },
@@ -25,7 +26,13 @@ export default [
       perfectionist,
     },
     rules: {
-      "perfectionist/sort-imports": "error",
+      ...perfectionist.configs["recommended-natural"].rules,
+      "perfectionist/sort-objects": ["error", { destructureOnly: true }],
+      "perfectionist/sort-jsx-props": "warn",
     },
+  },
+  {
+    plugins: { react },
+    rules: { "react/jsx-curly-brace-presence": ["warn", "never"] },
   },
 ];

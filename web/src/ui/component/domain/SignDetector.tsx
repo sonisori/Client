@@ -1,11 +1,11 @@
 import { createPresence } from "@solid-primitives/presence";
 import {
-  Show,
-  For,
-  onMount,
   createSignal,
-  onCleanup,
+  For,
   JSXElement,
+  onCleanup,
+  onMount,
+  Show,
 } from "solid-js";
 
 import { SignPhraseType } from "../../../service/type/phrase";
@@ -46,8 +46,8 @@ const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
 };
 
 const SignDetectorBody = (props: {
-  onDone: () => void;
   onCancel: () => void;
+  onDone: () => void;
   signPhraseType: SignPhraseType;
 }) => {
   const [words, setWords] = createSignal<Word[]>([]);
@@ -71,21 +71,21 @@ const SignDetectorBody = (props: {
     <>
       <div class="relative flex h-[50vh] justify-center bg-gray-50">
         <video
-          ref={videoRef}
+          autoplay
           class={cn("h-full -scale-x-100 duration-200", {
             "opacity-0": !streamStarted(),
           })}
-          autoplay
-          playsinline
           onClick={() => setWords((words) => [...words, { text: "테스트" }])}
+          playsinline
+          ref={videoRef}
         />
-        <Badge variant="outline" class="absolute bottom-5 right-5">
+        <Badge class="absolute bottom-5 right-5" variant="outline">
           {props.signPhraseType}
         </Badge>
       </div>
       <div class="border-b">
         <div class="relative">
-          <ScrollArea direction="x" defaultOffset={words().length * 500}>
+          <ScrollArea defaultOffset={words().length * 500} direction="x">
             <div
               class="flex h-[70px] items-center gap-4 px-5"
               style={{ "padding-right": "calc( 50vw - 144px - 80px )" }}
@@ -120,10 +120,10 @@ const SignDetectorBody = (props: {
                     ]}
                   >
                     <Badge
-                      size="md"
                       class="whitespace-pre animate-in fade-in"
-                      variant="secondary"
+                      size="md"
                       tabIndex={-1}
+                      variant="secondary"
                     >
                       {word.text}
                     </Badge>
@@ -134,24 +134,24 @@ const SignDetectorBody = (props: {
           </ScrollArea>
           <div class="absolute right-5 top-5 flex gap-3">
             <Button
-              size="sm"
               onClick={() => {
                 props.onDone();
               }}
+              size="sm"
             >
               완료
             </Button>
             <Show
-              when={words().length > 0}
               fallback={
                 <Button
+                  onClick={props.onCancel}
                   size="sm"
                   variant="destructive"
-                  onClick={props.onCancel}
                 >
                   취소
                 </Button>
               }
+              when={words().length > 0}
             >
               <Popover>
                 <PopoverTrigger>
@@ -168,9 +168,9 @@ const SignDetectorBody = (props: {
                   </PopoverTitle>
                   <PopoverDescription class="mt-3 flex justify-end">
                     <Button
+                      onClick={props.onCancel}
                       size="sm"
                       variant="destructive"
-                      onClick={props.onCancel}
                     >
                       취소
                     </Button>
@@ -192,9 +192,9 @@ export const SignDetector = (
   return (
     <SignDetectorRoot open={props.open}>
       <SignDetectorBody
+        onCancel={props.onCancel}
         onDone={props.onDone}
         signPhraseType={props.signPhraseType}
-        onCancel={props.onCancel}
       />
     </SignDetectorRoot>
   );

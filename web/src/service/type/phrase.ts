@@ -1,7 +1,7 @@
 export type Phrase = {
+  author: "left" | "right";
   text: string;
   type: "sign" | "text";
-  author: "left" | "right";
 };
 
-export type SignPhraseType = "평서문" | "의문문" | "감탄문";
+export type SignPhraseType = "감탄문" | "의문문" | "평서문";

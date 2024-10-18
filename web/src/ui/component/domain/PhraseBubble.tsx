@@ -17,8 +17,8 @@ const bubbleVariants = cva(
 );
 
 export const PhraseBubble = (props: {
-  phrase: Phrase;
   autoFocus?: boolean;
+  phrase: Phrase;
 }) => {
   // eslint-disable-next-line solid/reactivity
   const [text, setText] = createSignal(props.phrase.text);
@@ -45,15 +45,6 @@ export const PhraseBubble = (props: {
           </p>
         </Show>
         <textarea
-          onInput={(e) => setText(e.currentTarget.value)}
-          value={text()}
-          ref={(el) => {
-            if (props.autoFocus) {
-              setTimeout(() => {
-                el.focus();
-              }, 200);
-            }
-          }}
           class={cn(
             bubbleVariants({ author: props.phrase.author }),
             text() ? "absolute inset-0" : "h-9",
@@ -61,7 +52,16 @@ export const PhraseBubble = (props: {
             "outline-none",
             "resize-none",
           )}
+          onInput={(e) => setText(e.currentTarget.value)}
           placeholder="텍스트를 입력하세요"
+          ref={(el) => {
+            if (props.autoFocus) {
+              setTimeout(() => {
+                el.focus();
+              }, 200);
+            }
+          }}
+          value={text()}
         />
       </div>
     </div>

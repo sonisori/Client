@@ -29,9 +29,9 @@ export const DropdownMenu = (props: DropdownMenuRootProps) => {
 };
 
 type dropdownMenuContentProps<T extends ValidComponent = "div"> =
-  DropdownMenuContentProps<T> & {
+  {
     class?: string;
-  };
+  } & DropdownMenuContentProps<T>;
 
 export const DropdownMenuContent = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, dropdownMenuContentProps<T>>,
@@ -54,10 +54,10 @@ export const DropdownMenuContent = <T extends ValidComponent = "div">(
 };
 
 type dropdownMenuItemProps<T extends ValidComponent = "div"> =
-  DropdownMenuItemProps<T> & {
+  {
     class?: string;
     inset?: boolean;
-  };
+  } & DropdownMenuItemProps<T>;
 
 export const DropdownMenuItem = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, dropdownMenuItemProps<T>>,
@@ -80,9 +80,9 @@ export const DropdownMenuItem = <T extends ValidComponent = "div">(
 };
 
 type dropdownMenuGroupLabelProps<T extends ValidComponent = "span"> =
-  DropdownMenuGroupLabelProps<T> & {
+  {
     class?: string;
-  };
+  } & DropdownMenuGroupLabelProps<T>;
 
 export const DropdownMenuGroupLabel = <T extends ValidComponent = "span">(
   props: PolymorphicProps<T, dropdownMenuGroupLabelProps<T>>,
@@ -101,9 +101,9 @@ export const DropdownMenuGroupLabel = <T extends ValidComponent = "span">(
 };
 
 type dropdownMenuItemLabelProps<T extends ValidComponent = "div"> =
-  DropdownMenuItemLabelProps<T> & {
+  {
     class?: string;
-  };
+  } & DropdownMenuItemLabelProps<T>;
 
 export const DropdownMenuItemLabel = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, dropdownMenuItemLabelProps<T>>,
@@ -122,9 +122,9 @@ export const DropdownMenuItemLabel = <T extends ValidComponent = "div">(
 };
 
 type dropdownMenuSeparatorProps<T extends ValidComponent = "hr"> =
-  DropdownMenuSeparatorProps<T> & {
+  {
     class?: string;
-  };
+  } & DropdownMenuSeparatorProps<T>;
 
 export const DropdownMenuSeparator = <T extends ValidComponent = "hr">(
   props: PolymorphicProps<T, dropdownMenuSeparatorProps<T>>,
@@ -154,9 +154,9 @@ export const DropdownMenuShortcut = (props: ComponentProps<"span">) => {
 
 type dropdownMenuSubTriggerProps<T extends ValidComponent = "div"> =
   ParentProps<
-    DropdownMenuSubTriggerProps<T> & {
+    {
       class?: string;
-    }
+    } & DropdownMenuSubTriggerProps<T>
   >;
 
 export const DropdownMenuSubTrigger = <T extends ValidComponent = "div">(
@@ -177,19 +177,19 @@ export const DropdownMenuSubTrigger = <T extends ValidComponent = "div">(
     >
       {local.children}
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1em"
+        class="ml-auto h-4 w-4"
         height="1em"
         viewBox="0 0 24 24"
-        class="ml-auto h-4 w-4"
+        width="1em"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <path
+          d="m9 6l6 6l-6 6"
           fill="none"
           stroke="currentColor"
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
-          d="m9 6l6 6l-6 6"
         />
         <title>Arrow</title>
       </svg>
@@ -198,9 +198,9 @@ export const DropdownMenuSubTrigger = <T extends ValidComponent = "div">(
 };
 
 type dropdownMenuSubContentProps<T extends ValidComponent = "div"> =
-  DropdownMenuSubTriggerProps<T> & {
+  {
     class?: string;
-  };
+  } & DropdownMenuSubTriggerProps<T>;
 
 export const DropdownMenuSubContent = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, dropdownMenuSubContentProps<T>>,
@@ -224,9 +224,9 @@ export const DropdownMenuSubContent = <T extends ValidComponent = "div">(
 
 type dropdownMenuCheckboxItemProps<T extends ValidComponent = "div"> =
   ParentProps<
-    DropdownMenuCheckboxItemProps<T> & {
+    {
       class?: string;
-    }
+    } & DropdownMenuCheckboxItemProps<T>
   >;
 
 export const DropdownMenuCheckboxItem = <T extends ValidComponent = "div">(
@@ -247,17 +247,17 @@ export const DropdownMenuCheckboxItem = <T extends ValidComponent = "div">(
     >
       <DropdownMenuPrimitive.ItemIndicator class="absolute left-2 inline-flex h-4 w-4 items-center justify-center">
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
           class="h-4 w-4"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <path
+            d="m5 12l5 5L20 7"
             fill="none"
             stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="m5 12l5 5L20 7"
           />
           <title>Checkbox</title>
         </svg>
@@ -268,9 +268,9 @@ export const DropdownMenuCheckboxItem = <T extends ValidComponent = "div">(
 };
 
 type dropdownMenuRadioItemProps<T extends ValidComponent = "div"> = ParentProps<
-  DropdownMenuRadioItemProps<T> & {
+  {
     class?: string;
-  }
+  } & DropdownMenuRadioItemProps<T>
 >;
 
 export const DropdownMenuRadioItem = <T extends ValidComponent = "div">(
@@ -291,9 +291,9 @@ export const DropdownMenuRadioItem = <T extends ValidComponent = "div">(
     >
       <DropdownMenuPrimitive.ItemIndicator class="absolute left-2 inline-flex h-4 w-4 items-center justify-center">
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
           class="h-2 w-2"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <g
             fill="none"
@@ -303,8 +303,8 @@ export const DropdownMenuRadioItem = <T extends ValidComponent = "div">(
           >
             <path d="M0 0h24v24H0z" />
             <path
-              fill="currentColor"
               d="M7 3.34a10 10 0 1 1-4.995 8.984L2 12l.005-.324A10 10 0 0 1 7 3.34"
+              fill="currentColor"
             />
           </g>
           <title>Radio</title>

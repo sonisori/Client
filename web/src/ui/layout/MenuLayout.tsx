@@ -7,17 +7,17 @@ import { School } from "../icon/School";
 import { Setting } from "../icon/Setting";
 
 const MenuLink = (props: {
-  icon: JSXElement;
-  title: string;
   description: string;
   href: string;
+  icon: JSXElement;
+  title: string;
 }) => {
   return (
     <Button
-      variant="ghost"
-      class="block h-auto w-full text-start"
       as="a"
+      class="block h-auto w-full text-start"
       href={props.href}
+      variant="ghost"
     >
       <div class="flex items-start">
         <span class="mr-2 translate-y-2 scale-125">{props.icon}</span>
@@ -45,24 +45,24 @@ export const MenuLayout = (props: { children: JSXElement }) => {
         <div class="space-y-2 p-5">
           <MenuLink
             description="실시간으로 통역을 제공"
-            title="수어 번역기"
             href="/translator"
             icon={<HandRaised />}
+            title="수어 번역기"
           />
           <MenuLink
             description="수어를 쉽고 빠르게 학습"
-            title="수어 학습"
             href="/learn"
             icon={<School />}
+            title="수어 학습"
           />
         </div>
         <div class="ml-8 mr-5 border-t" />
         <div class="space-y-2 p-5">
           <MenuLink
             description="서비스 사용에 필요한 설정"
-            title="설정"
             href="/setting"
             icon={<Setting />}
+            title="설정"
           />
         </div>
       </div>

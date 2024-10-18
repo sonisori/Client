@@ -6,18 +6,18 @@ import { assign, setup } from "xstate";
 
 import { cn } from "../../../service/util/cn";
 
-type Direction = "vertical" | "horizontal";
+type Direction = "horizontal" | "vertical";
 
 const scrollAreaMachine = setup({
   types: {
     context: {} as {
-      showScrollbar: boolean;
       offset: number;
+      showScrollbar: boolean;
     },
     events: {} as
-      | { type: "POINTER_ENTER" | "POINTER_LEAVE" | "DRAG_START" }
-      | { type: "SET_OFFSET"; offset: number }
-      | { type: "DRAG_END"; pointerOnViewport: boolean },
+      | { offset: number; type: "SET_OFFSET" }
+      | { pointerOnViewport: boolean; type: "DRAG_END" }
+      | { type: "DRAG_START" | "POINTER_ENTER" | "POINTER_LEAVE" },
   },
 }).createMachine({
   context: {
@@ -130,8 +130,8 @@ const CLIENT_MAP = {
 
 export const ScrollArea = (props: {
   children: JSXElement;
-  direction: Direction;
   class?: string;
+  direction: Direction;
   style?: JSX.CSSProperties;
   viewportRef?: (el: HTMLDivElement) => void;
 }) => {
@@ -192,22 +192,22 @@ export const ScrollArea = (props: {
 
   return (
     <div
-      ref={setRoot}
       class={cn("relative", props.class)}
-      style={props.style}
       onPointerEnter={() => send({ type: "POINTER_ENTER" })}
       onPointerLeave={() => send({ type: "POINTER_LEAVE" })}
+      ref={setRoot}
+      style={props.style}
     >
       <div
-        ref={(ref) =>
-          [setViewport, props.viewportRef].forEach((fn) => fn?.(ref))
-        }
         class={scrollAreaVariant({ direction: props.direction })}
         onScroll={(e) =>
           send({
             type: "SET_OFFSET",
             offset: e.currentTarget[SCROLL_OFFSET_MAP[props.direction]],
           })
+        }
+        ref={(ref) =>
+          [setViewport, props.viewportRef].forEach((fn) => fn?.(ref))
         }
       >
         <div
@@ -220,11 +220,11 @@ export const ScrollArea = (props: {
       <Show when={showScrollbar()}>
         <div class={scrollbarContainerVariant({ direction: props.direction })}>
           <div
-            onMouseDown={onDragStart}
             class={cn(scrollBarVariant({ direction: props.direction }), {
               "opacity-0": !snapshot.context.showScrollbar,
               "opacity-30": snapshot.matches("dragging"),
             })}
+            onMouseDown={onDragStart}
             style={{
               [SIZE_MAP[props.direction]]: `${thumbSize()}px`,
               transform: `${TRANSLATE_MAP[props.direction]}(${thumbTranslate()}px)`,
