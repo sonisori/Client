@@ -10,7 +10,7 @@ export const Splash = (props: { children: JSXElement }) => {
   }, 2000);
 
   return (
-    <Show when={loading()} fallback={props.children}>
+    <Show fallback={props.children} when={loading()}>
       <div class="fixed inset-0 flex items-center justify-center bg-white">
         <div class="grid grid-cols-2 items-center justify-items-end gap-10">
           <div class="size-32 bg-gray-200" />

@@ -5,15 +5,15 @@ import { SignPhraseType } from "../../service/type/phrase";
 export const translatorScreenMachine = setup({
   types: {
     context: {} as {
-      signPhraseType: SignPhraseType | null;
       initialIdle: boolean;
+      signPhraseType: null | SignPhraseType;
     },
     events: {} as
+      | { signPhraseType: SignPhraseType; type: "INPUT_SIGN_LEFT" }
       | { type: "DONE_SIGN" }
       | { type: "DONE_TEXT" }
       | { type: "INPUT_TEXT_LEFT" }
-      | { type: "INPUT_TEXT_RIGHT" }
-      | { type: "INPUT_SIGN_LEFT"; signPhraseType: SignPhraseType },
+      | { type: "INPUT_TEXT_RIGHT" },
     tags: "" as "idle" | "inputting",
   },
   actions: {

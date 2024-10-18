@@ -1,4 +1,4 @@
-import { JSXElement, For } from "solid-js";
+import { For, JSXElement } from "solid-js";
 
 import {
   DropdownMenu,
@@ -13,8 +13,8 @@ import {
 export const Dropdown = (props: {
   children: JSXElement;
   menu: {
+    items: { disabled?: boolean; onClick: () => void; title: string }[];
     title?: string;
-    items: { title: string; onClick: () => void; disabled?: boolean }[];
   }[];
 }) => {
   return (

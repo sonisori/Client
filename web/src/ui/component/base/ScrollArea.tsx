@@ -25,27 +25,27 @@ const MOVEMENT_MAP = { x: "movementX", y: "movementY" } as const;
 
 const scrollAreaMachine = setup({
   types: {} as {
-    input: {
-      offset: number;
-      showScrollbar: boolean;
-    };
     context: {
       offset: number;
       showScrollbar: boolean;
     };
     events:
       | {
-          type:
-            | "POINTER_ENTER"
-            | "POINTER_LEAVE"
-            | "POINTER_ACTIVE"
-            | "POINTER_INACTIVE"
-            | "SCROLL_START";
+          offset: number;
+          type: "SET_OFFSET";
         }
       | {
-          type: "SET_OFFSET";
-          offset: number;
+          type:
+            | "POINTER_ACTIVE"
+            | "POINTER_ENTER"
+            | "POINTER_INACTIVE"
+            | "POINTER_LEAVE"
+            | "SCROLL_START";
         };
+    input: {
+      offset: number;
+      showScrollbar: boolean;
+    };
   },
   actions: {
     showScrollbar: assign({ showScrollbar: true }),
@@ -127,11 +127,11 @@ const scrollBarVariant = cva("absolute", {
 
 export const ScrollArea = (props: {
   children: JSXElement;
-  direction: "x" | "y";
   class?: string;
   defaultOffset?: number;
-  style?: JSX.CSSProperties;
+  direction: "x" | "y";
   disableAnimation?: boolean;
+  style?: JSX.CSSProperties;
 }) => {
   const [childrenContainer, setChildrenContainer] =
     createSignal<HTMLDivElement>();
@@ -228,18 +228,17 @@ export const ScrollArea = (props: {
 
   return (
     <div
-      ref={setScrollAreaContainer}
+      class={cn(scrollAreaVariant({ direction: props.direction }), props.class)}
       onMouseEnter={() => send({ type: "POINTER_ENTER" })}
       onMouseLeave={() => send({ type: "POINTER_LEAVE" })}
       onWheel={(e) => {
         e.preventDefault();
         handleScroll(e);
       }}
-      class={cn(scrollAreaVariant({ direction: props.direction }), props.class)}
+      ref={setScrollAreaContainer}
       style={props.style}
     >
       <div
-        ref={setChildrenContainer}
         class={cn({
           "transition-transform duration-500":
             !props.disableAnimation &&
@@ -247,6 +246,7 @@ export const ScrollArea = (props: {
           "min-w-max": props.direction === "x",
           "min-h-max": props.direction === "y",
         })}
+        ref={setChildrenContainer}
         style={{
           transform: `${TRANSLATE_MAP[props.direction]}(${-snapshot.context.offset}px)`,
         }}
@@ -256,10 +256,6 @@ export const ScrollArea = (props: {
       <Show when={showScrollbar()}>
         <div class={cn(scrollBarVariant({ direction: props.direction }))}>
           <div
-            onPointerDown={() => {
-              send({ type: "POINTER_ACTIVE" });
-              document.body.style.userSelect = "none";
-            }}
             class={cn(
               "rounded-full bg-black opacity-10 transition-opacity duration-200 hover:opacity-30",
               {
@@ -269,6 +265,10 @@ export const ScrollArea = (props: {
                 "opacity-30": snapshot.matches("interacting"),
               },
             )}
+            onPointerDown={() => {
+              send({ type: "POINTER_ACTIVE" });
+              document.body.style.userSelect = "none";
+            }}
             style={{
               [SIZE_MAP[props.direction]]: `${scrollHandleSize()}px`,
               transform: `${TRANSLATE_MAP[props.direction]}(${

@@ -15,9 +15,9 @@ import { splitProps } from "solid-js";
 import { cn } from "../../../service/util/cn";
 
 type textFieldProps<T extends ValidComponent = "div"> =
-  TextFieldRootProps<T> & {
+  {
     class?: string;
-  };
+  } & TextFieldRootProps<T>;
 
 export const TextFieldRoot = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, textFieldProps<T>>,
@@ -48,9 +48,9 @@ export const textfieldLabel = cva(
 );
 
 type textFieldLabelProps<T extends ValidComponent = "label"> =
-  TextFieldLabelProps<T> & {
+  {
     class?: string;
-  };
+  } & TextFieldLabelProps<T>;
 
 export const TextFieldLabel = <T extends ValidComponent = "label">(
   props: PolymorphicProps<T, textFieldLabelProps<T>>,
@@ -66,9 +66,9 @@ export const TextFieldLabel = <T extends ValidComponent = "label">(
 };
 
 type textFieldErrorMessageProps<T extends ValidComponent = "div"> =
-  TextFieldErrorMessageProps<T> & {
+  {
     class?: string;
-  };
+  } & TextFieldErrorMessageProps<T>;
 
 export const TextFieldErrorMessage = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, textFieldErrorMessageProps<T>>,
@@ -86,9 +86,9 @@ export const TextFieldErrorMessage = <T extends ValidComponent = "div">(
 };
 
 type textFieldDescriptionProps<T extends ValidComponent = "div"> =
-  TextFieldDescriptionProps<T> & {
+  {
     class?: string;
-  };
+  } & TextFieldDescriptionProps<T>;
 
 export const TextFieldDescription = <T extends ValidComponent = "div">(
   props: PolymorphicProps<T, textFieldDescriptionProps<T>>,
@@ -109,9 +109,9 @@ export const TextFieldDescription = <T extends ValidComponent = "div">(
 };
 
 type textFieldInputProps<T extends ValidComponent = "input"> = VoidProps<
-  TextFieldInputProps<T> & {
+  {
     class?: string;
-  }
+  } & TextFieldInputProps<T>
 >;
 
 export const TextField = <T extends ValidComponent = "input">(

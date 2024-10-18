@@ -1,6 +1,6 @@
 import { createPresence } from "@solid-primitives/presence";
 import { useMachine } from "@xstate/solid";
-import { For, createSignal, createEffect, Show, createMemo } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 
 import { Phrase } from "../../service/type/phrase";
 import { cn } from "../../service/util/cn";
@@ -60,8 +60,9 @@ export const Translator = () => {
     <MenuLayout>
       <div class="fixed inset-y-0 left-72 right-0">
         <SignDetector
-          signPhraseType={snapshot.context.signPhraseType!}
-          open={snapshot.matches("inputting left sign")}
+          onCancel={() => {
+            send({ type: "DONE_SIGN" });
+          }}
           onDone={() => {
             setPhrases((phrases) => [
               ...phrases,
@@ -73,14 +74,12 @@ export const Translator = () => {
             ]);
             send({ type: "DONE_SIGN" });
           }}
-          onCancel={() => {
-            send({ type: "DONE_SIGN" });
-          }}
+          open={snapshot.matches("inputting left sign")}
+          signPhraseType={snapshot.context.signPhraseType!}
         />
         <ScrollArea
-          viewportRef={setViewport}
-          direction="vertical"
           class="absolute inset-x-0"
+          direction="vertical"
           style={{
             // sign-detector의 바닥에 붙도록
             top: snapshot.matches("inputting left sign")
@@ -88,6 +87,7 @@ export const Translator = () => {
               : "0",
             bottom: BOTTOM_BAR_HEIGHT_PX,
           }}
+          viewportRef={setViewport}
         >
           <div
             class="flex w-full flex-col justify-end p-5"
@@ -108,8 +108,8 @@ export const Translator = () => {
               >
                 {(phrase) => (
                   <PhraseBubble
-                    phrase={phrase}
                     autoFocus={phrase.type === "text"}
+                    phrase={phrase}
                   />
                 )}
               </For>
@@ -184,7 +184,6 @@ export const Translator = () => {
               </div>
               <div class="flex gap-5">
                 <Button
-                  variant="secondary"
                   onClick={() => {
                     send({ type: "INPUT_TEXT_RIGHT" });
                     setPhrases((phrases) => [
@@ -192,6 +191,7 @@ export const Translator = () => {
                       { author: "right", text: "", type: "text" },
                     ]);
                   }}
+                  variant="secondary"
                 >
                   텍스트 입력
                 </Button>
