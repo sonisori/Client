@@ -1,4 +1,8 @@
-import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
+import {
+  DrawingUtils,
+  FilesetResolver,
+  HandLandmarker,
+} from "@mediapipe/tasks-vision";
 import { createPresence } from "@solid-primitives/presence";
 import {
   createSignal,
@@ -54,9 +58,11 @@ const SignDetectorBody = (props: {
   const [words, setWords] = createSignal<Word[]>([]);
   const [help, setHelp] = createSignal<null | string>(null);
 
+  let canvasRef!: HTMLCanvasElement;
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream | null = null;
   let handLandmarker: HandLandmarker;
+  let animationFrame: null | number = null;
 
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -67,9 +73,13 @@ const SignDetectorBody = (props: {
     stream = media;
     videoRef.srcObject = media;
     const { promise, resolve } = Promise.withResolvers<void>();
-    videoRef.addEventListener("loadeddata", () => {
-      resolve();
-    });
+    videoRef.addEventListener(
+      "loadeddata",
+      () => {
+        resolve();
+      },
+      { once: true },
+    );
 
     return promise;
   };
@@ -88,14 +98,26 @@ const SignDetectorBody = (props: {
   };
 
   const predictMedia = () => {
+    canvasRef.style.width = videoRef.clientWidth + "px";
+    canvasRef.style.height = videoRef.clientHeight + "px";
+    canvasRef.width = videoRef.videoWidth;
+    canvasRef.height = videoRef.videoHeight;
+
     const time = performance.now();
-    const detections = handLandmarker.detectForVideo(videoRef!, time);
-    if (detections.landmarks.length > 0) {
-      console.log(detections);
-    }
-    if (stream) {
-      requestAnimationFrame(predictMedia);
-    }
+    const { landmarks } = handLandmarker.detectForVideo(videoRef!, time);
+    const context = canvasRef.getContext("2d")!;
+    context.save();
+    context.clearRect(0, 0, canvasRef.width, canvasRef.height);
+    landmarks.forEach((landmark) => {
+      const drawingUtils = new DrawingUtils(context);
+      drawingUtils.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS, {
+        lineWidth: 5,
+        color: "#0f298f",
+      });
+      drawingUtils.drawLandmarks(landmark, { color: "#ff7f00", lineWidth: 2 });
+    });
+    context.restore();
+    animationFrame = requestAnimationFrame(predictMedia);
   };
 
   onMount(async () => {
@@ -110,19 +132,30 @@ const SignDetectorBody = (props: {
 
   onCleanup(() => {
     stream?.getTracks().forEach((track) => track.stop());
-    stream = null;
+    if (typeof animationFrame === "number") {
+      cancelAnimationFrame(animationFrame);
+    }
+    handLandmarker?.close();
   });
 
   return (
     <>
-      <div class="relative flex h-[50vh] justify-center bg-gray-50">
-        <video
-          autoplay
-          class="h-full -scale-x-100 duration-200"
-          onClick={() => setWords((words) => [...words, { text: "테스트" }])}
-          playsinline
-          ref={videoRef}
-        />
+      <div class="relative flex justify-center bg-gray-50">
+        <div class="relative">
+          <video
+            autoplay
+            class="h-[50vh]"
+            onClick={() => setWords((words) => [...words, { text: "테스트" }])}
+            playsinline
+            ref={videoRef}
+            style={{ transform: "rotateY(180deg)" }}
+          />
+          <canvas
+            class="absolute left-0 top-0"
+            ref={canvasRef}
+            style={{ transform: "rotateY(180deg)" }}
+          />
+        </div>
         <Badge class="absolute bottom-5 right-5 bg-white" variant="outline">
           {props.signPhraseType}
         </Badge>
