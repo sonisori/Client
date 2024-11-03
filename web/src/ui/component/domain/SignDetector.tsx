@@ -1,3 +1,4 @@
+import { DrawingUtils, HandLandmarker } from "@mediapipe/tasks-vision";
 import { createPresence } from "@solid-primitives/presence";
 import {
   createSignal,
@@ -11,6 +12,7 @@ import {
 import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
+import { handLandmarker } from "../../../service/util/handLandmarker";
 import { PropsOf } from "../../../service/util/type";
 import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
@@ -51,35 +53,93 @@ const SignDetectorBody = (props: {
   signPhraseType: SignPhraseType;
 }) => {
   const [words, setWords] = createSignal<Word[]>([]);
-  const [streamStarted, setStreamStarted] = createSignal(false);
+  const [help, setHelp] = createSignal<null | string>(null);
 
+  let canvasRef!: HTMLCanvasElement;
   let videoRef!: HTMLVideoElement;
-  let stream: MediaStream;
+  let stream: MediaStream | null = null;
+  let animationFrame: null | number = null;
 
-  onMount(() => {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((_stream) => {
-      videoRef.srcObject = _stream;
-      stream = _stream;
-      setStreamStarted(true);
+  const streamMedia = async () => {
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      throw new Error("카메라를 사용할 수 없는 디바이스입니다.");
+    }
+
+    const media = await navigator.mediaDevices.getUserMedia({ video: true });
+    stream = media;
+    videoRef.srcObject = media;
+    const { promise, resolve } = Promise.withResolvers<void>();
+    videoRef.addEventListener(
+      "loadeddata",
+      () => {
+        resolve();
+      },
+      { once: true },
+    );
+
+    return promise;
+  };
+
+  const predictMedia = () => {
+    canvasRef.style.width = videoRef.clientWidth + "px";
+    canvasRef.style.height = videoRef.clientHeight + "px";
+    canvasRef.width = videoRef.videoWidth;
+    canvasRef.height = videoRef.videoHeight;
+
+    const time = performance.now();
+    const { landmarks } = handLandmarker.detectForVideo(videoRef!, time);
+    const context = canvasRef.getContext("2d")!;
+    context.save();
+    context.clearRect(0, 0, canvasRef.width, canvasRef.height);
+    landmarks.forEach((landmark) => {
+      const drawingUtils = new DrawingUtils(context);
+      drawingUtils.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS, {
+        lineWidth: 5,
+        color: "#0f298f",
+      });
+      drawingUtils.drawLandmarks(landmark, { color: "#ff7f00", lineWidth: 2 });
     });
+    context.restore();
+    animationFrame = requestAnimationFrame(predictMedia);
+  };
+
+  onMount(async () => {
+    try {
+      await streamMedia();
+      await handLandmarker.initialize();
+      predictMedia();
+    } catch (error) {
+      setHelp((error as Error).message);
+    }
   });
+
   onCleanup(() => {
     stream?.getTracks().forEach((track) => track.stop());
+    if (typeof animationFrame === "number") {
+      cancelAnimationFrame(animationFrame);
+    }
+    handLandmarker.close();
   });
 
   return (
     <>
-      <div class="relative flex h-[50vh] justify-center bg-gray-50">
-        <video
-          autoplay
-          class={cn("h-full -scale-x-100 duration-200", {
-            "opacity-0": !streamStarted(),
-          })}
-          onClick={() => setWords((words) => [...words, { text: "테스트" }])}
-          playsinline
-          ref={videoRef}
-        />
-        <Badge class="absolute bottom-5 right-5" variant="outline">
+      <div class="relative flex justify-center bg-gray-50">
+        <div class="relative">
+          <video
+            autoplay
+            class="h-[50vh]"
+            onClick={() => setWords((words) => [...words, { text: "테스트" }])}
+            playsinline
+            ref={videoRef}
+            style={{ transform: "rotateY(180deg)" }}
+          />
+          <canvas
+            class="absolute left-0 top-0"
+            ref={canvasRef}
+            style={{ transform: "rotateY(180deg)" }}
+          />
+        </div>
+        <Badge class="absolute bottom-5 right-5 bg-white" variant="outline">
           {props.signPhraseType}
         </Badge>
       </div>
@@ -90,9 +150,9 @@ const SignDetectorBody = (props: {
               class="flex h-[70px] items-center gap-4 px-5"
               style={{ "padding-right": "calc( 50vw - 144px - 80px )" }}
             >
-              <Show when={words().length === 0}>
+              <Show when={help() || words().length === 0}>
                 <p class="animate-pulse text-sm text-secondary-foreground">
-                  수어 인식중...
+                  {help() || "수어 인식중..."}
                 </p>
               </Show>
               <For each={words()}>

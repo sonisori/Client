@@ -11,6 +11,9 @@ importers:
       '@kobalte/core':
         specifier: ^0.13.6
         version: 0.13.6(solid-js@1.9.1)
+      '@mediapipe/tasks-vision':
+        specifier: ^0.10.17
+        version: 0.10.17
       '@solid-primitives/presence':
         specifier: ^0.0.6
         version: 0.0.6(solid-js@1.9.1)
@@ -437,6 +440,9 @@ packages:
     resolution: {integrity: sha512-eeU60A3kprIiBDAfv9gUJX1tXGLuZiKMajUfSQURAF2pk4ZoMYiqIzmrMBvzcxP39xnYttgTyQEVLwiTZnrV4w==}
     peerDependencies:
       solid-js: ^1.8.8
+
+  '@mediapipe/tasks-vision@0.10.17':
+    resolution: {integrity: sha512-CZWV/q6TTe8ta61cZXjfnnHsfWIdFhms03M9T7Cnd5y2mdpylJM0rF1qRq+wsQVRMLz1OYPVEBU9ph2Bx8cxrg==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2600,6 +2606,8 @@ snapshots:
       '@solid-primitives/refs': 1.0.8(solid-js@1.9.1)
       '@solid-primitives/utils': 6.2.3(solid-js@1.9.1)
       solid-js: 1.9.1
+
+  '@mediapipe/tasks-vision@0.10.17': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
