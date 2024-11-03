@@ -1,8 +1,4 @@
-import {
-  DrawingUtils,
-  FilesetResolver,
-  HandLandmarker,
-} from "@mediapipe/tasks-vision";
+import { DrawingUtils, HandLandmarker } from "@mediapipe/tasks-vision";
 import { createPresence } from "@solid-primitives/presence";
 import {
   createSignal,
@@ -16,6 +12,7 @@ import {
 import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
+import { handLandmarker } from "../../../service/util/handLandmarker";
 import { PropsOf } from "../../../service/util/type";
 import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
@@ -61,7 +58,6 @@ const SignDetectorBody = (props: {
   let canvasRef!: HTMLCanvasElement;
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream | null = null;
-  let handLandmarker: HandLandmarker;
   let animationFrame: null | number = null;
 
   const streamMedia = async () => {
@@ -82,19 +78,6 @@ const SignDetectorBody = (props: {
     );
 
     return promise;
-  };
-
-  const loadLandmarker = async () => {
-    const vision = await FilesetResolver.forVisionTasks("/mediapipe/wasm");
-    handLandmarker = await HandLandmarker.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath: "/mediapipe/model/hand_landmarker.task",
-        delegate: "GPU",
-      },
-      runningMode: "VIDEO",
-      numHands: 2,
-    });
-    await handLandmarker.setOptions({ runningMode: "VIDEO" });
   };
 
   const predictMedia = () => {
@@ -123,7 +106,7 @@ const SignDetectorBody = (props: {
   onMount(async () => {
     try {
       await streamMedia();
-      await loadLandmarker();
+      await handLandmarker.initialize();
       predictMedia();
     } catch (error) {
       setHelp((error as Error).message);
@@ -135,7 +118,7 @@ const SignDetectorBody = (props: {
     if (typeof animationFrame === "number") {
       cancelAnimationFrame(animationFrame);
     }
-    handLandmarker?.close();
+    handLandmarker.close();
   });
 
   return (
