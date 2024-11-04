@@ -40,9 +40,9 @@ export const buttonVariants = cva(
 );
 
 type buttonProps<T extends ValidComponent = "button"> = {
-    class?: string;
-  } &
-  ButtonRootProps<T> & VariantProps<typeof buttonVariants>;
+  class?: string;
+} & ButtonRootProps<T> &
+  VariantProps<typeof buttonVariants>;
 
 export const Button = <T extends ValidComponent = "button">(
   props: PolymorphicProps<T, buttonProps<T>>,

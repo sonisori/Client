@@ -23,7 +23,9 @@ const MenuLink = (props: {
         <span class="mr-2 translate-y-2 scale-125">{props.icon}</span>
         <div class="text-start">
           <p class="text-base">{props.title}</p>
-          <p class="text-sm font-normal text-gray-500">{props.description}</p>
+          <p class="text-sm font-normal text-muted-foreground">
+            {props.description}
+          </p>
         </div>
       </div>
     </Button>
@@ -51,7 +53,7 @@ export const MenuLayout = (props: { children: JSXElement }) => {
           />
           <MenuLink
             description="수어를 쉽고 빠르게 학습"
-            href="/learn"
+            href="/learning"
             icon={<School />}
             title="수어 학습"
           />
