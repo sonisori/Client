@@ -41,7 +41,7 @@ const Card = (props: {
   );
 };
 
-export const Learning = () => {
+export const LearningList = () => {
   const cards = [
     {
       id: 1,
