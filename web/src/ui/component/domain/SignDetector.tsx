@@ -1,9 +1,11 @@
 import { DrawingUtils, HandLandmarker } from "@mediapipe/tasks-vision";
 import { createPresence } from "@solid-primitives/presence";
 import {
+  createEffect,
   createSignal,
   For,
   JSXElement,
+  on,
   onCleanup,
   onMount,
   Show,
@@ -48,8 +50,9 @@ const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
 };
 
 const SignDetectorBody = (props: {
-  onCancel: () => void;
-  onDone: () => void;
+  key?: number;
+  onCancel?: () => void;
+  onDone?: () => void;
   signPhraseType: SignPhraseType;
 }) => {
   const [words, setWords] = createSignal<Word[]>([]);
@@ -121,6 +124,13 @@ const SignDetectorBody = (props: {
     handLandmarker.close();
   });
 
+  createEffect(
+    on(
+      () => props.key,
+      () => setWords([]),
+    ),
+  );
+
   return (
     <>
       <div class="relative flex justify-center bg-gray-50">
@@ -128,18 +138,21 @@ const SignDetectorBody = (props: {
           <video
             autoplay
             class="h-[50vh]"
-            onClick={() => setWords((words) => [...words, { text: "테스트" }])}
             playsinline
             ref={videoRef}
             style={{ transform: "rotateY(180deg)" }}
           />
           <canvas
             class="absolute left-0 top-0"
+            onClick={() => setWords((words) => [...words, { text: "테스트" }])}
             ref={canvasRef}
             style={{ transform: "rotateY(180deg)" }}
           />
         </div>
-        <Badge class="absolute bottom-5 right-5 bg-white" variant="outline">
+        <Badge
+          class="absolute bottom-5 right-5 select-none bg-white"
+          variant="outline"
+        >
           {props.signPhraseType}
         </Badge>
       </div>
@@ -193,50 +206,56 @@ const SignDetectorBody = (props: {
             </div>
           </ScrollArea>
           <div class="absolute right-5 top-5 flex gap-3">
-            <Button
-              onClick={() => {
-                props.onDone();
-              }}
-              size="sm"
-            >
-              완료
-            </Button>
-            <Show
-              fallback={
+            <Show when={props.onDone}>
+              {(onDone) => (
                 <Button
-                  onClick={props.onCancel}
+                  onClick={() => {
+                    onDone()();
+                  }}
                   size="sm"
-                  variant="destructive"
                 >
-                  취소
+                  완료
                 </Button>
-              }
-              when={words().length > 0}
-            >
-              <Popover>
-                <PopoverTrigger>
-                  <Button size="sm" variant="destructive">
+              )}
+            </Show>
+            <Show when={props.onCancel}>
+              <Show
+                fallback={
+                  <Button
+                    onClick={props.onCancel}
+                    size="sm"
+                    variant="destructive"
+                  >
                     취소
                   </Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <PopoverTitle class="space-y-2">
-                    <h4 class="font-medium leading-none">입력 취소</h4>
-                    <p class="text-sm text-muted-foreground">
-                      입력한 단어가 모두 지워집니다
-                    </p>
-                  </PopoverTitle>
-                  <PopoverDescription class="mt-3 flex justify-end">
-                    <Button
-                      onClick={props.onCancel}
-                      size="sm"
-                      variant="destructive"
-                    >
+                }
+                when={words().length > 0}
+              >
+                <Popover>
+                  <PopoverTrigger>
+                    <Button size="sm" variant="destructive">
                       취소
                     </Button>
-                  </PopoverDescription>
-                </PopoverContent>
-              </Popover>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverTitle class="space-y-2">
+                      <h4 class="font-medium leading-none">입력 취소</h4>
+                      <p class="text-sm text-muted-foreground">
+                        입력한 단어가 모두 지워집니다
+                      </p>
+                    </PopoverTitle>
+                    <PopoverDescription class="mt-3 flex justify-end">
+                      <Button
+                        onClick={props.onCancel}
+                        size="sm"
+                        variant="destructive"
+                      >
+                        취소
+                      </Button>
+                    </PopoverDescription>
+                  </PopoverContent>
+                </Popover>
+              </Show>
             </Show>
           </div>
         </div>
@@ -252,6 +271,7 @@ export const SignDetector = (
   return (
     <SignDetectorRoot open={props.open}>
       <SignDetectorBody
+        key={props.key}
         onCancel={props.onCancel}
         onDone={props.onDone}
         signPhraseType={props.signPhraseType}
