@@ -1,6 +1,7 @@
 import { Router } from "@solidjs/router";
 
 import { ViewportLayout } from "./ui/layout/ViewportLayout";
+import { Learning } from "./ui/screen/Learning";
 import { LearningList } from "./ui/screen/LearningList";
 import { SignIn } from "./ui/screen/SignIn";
 import { SignUp } from "./ui/screen/SignUp";
@@ -28,6 +29,10 @@ export const App = () => {
             {
               path: "/learning",
               component: () => <LearningList />,
+            },
+            {
+              path: "/learning/:id",
+              component: () => <Learning />,
             },
           ]}
         </Router>
