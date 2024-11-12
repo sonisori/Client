@@ -149,7 +149,10 @@ const SignDetectorBody = (props: {
             style={{ transform: "rotateY(180deg)" }}
           />
         </div>
-        <Badge class="absolute bottom-5 right-5 bg-white" variant="outline">
+        <Badge
+          class="absolute bottom-5 right-5 select-none bg-white"
+          variant="outline"
+        >
           {props.signPhraseType}
         </Badge>
       </div>
@@ -207,7 +210,7 @@ const SignDetectorBody = (props: {
               {(onDone) => (
                 <Button
                   onClick={() => {
-                    onDone();
+                    onDone()();
                   }}
                   size="sm"
                 >
