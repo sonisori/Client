@@ -3,11 +3,11 @@ import { createSignal, JSXElement, Show } from "solid-js";
 import { SERVICE_NAME } from "../../service/constant/domain";
 
 export const Splash = (props: { children: JSXElement }) => {
-  const [loading, setLoading] = createSignal(false);
+  const [loading, setLoading] = createSignal(true);
 
   setTimeout(() => {
     setLoading(false);
-  }, 2000);
+  }, 1000);
 
   return (
     <Show fallback={props.children} when={loading()}>

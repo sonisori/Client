@@ -3,6 +3,8 @@ import { Router } from "@solidjs/router";
 import { ViewportLayout } from "./ui/layout/ViewportLayout";
 import { Learning } from "./ui/screen/Learning";
 import { LearningList } from "./ui/screen/LearningList";
+import { NotFound } from "./ui/screen/NotFound";
+import { Redirect } from "./ui/screen/Redirect";
 import { Setting } from "./ui/screen/Setting";
 import { SignIn } from "./ui/screen/SignIn";
 import { SignUp } from "./ui/screen/SignUp";
@@ -15,6 +17,10 @@ export const App = () => {
       <Splash>
         <Router>
           {[
+            {
+              path: "/",
+              component: () => <Redirect to="/translator" />,
+            },
             {
               path: "/sign-in",
               component: () => <SignIn />,
@@ -38,6 +44,10 @@ export const App = () => {
             {
               path: "/setting",
               component: () => <Setting />,
+            },
+            {
+              path: "*",
+              component: () => <NotFound />,
             },
           ]}
         </Router>
