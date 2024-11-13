@@ -18,7 +18,7 @@ class HandLandmarker {
   }
   async initialize() {
     if (!this.handLandmarker) {
-      console.log("load new handLandmarker");
+      console.log("[HandLandmarker] initialize");
       const vision = await FilesetResolver.forVisionTasks("/mediapipe/wasm");
       this.handLandmarker = await MediapipeHandLandmarker.createFromOptions(
         vision,

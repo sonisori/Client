@@ -58,6 +58,7 @@ const SignDetectorBody = (props: {
   const [words, setWords] = createSignal<Word[]>([]);
   const [help, setHelp] = createSignal<null | string>(null);
 
+  let mounted = false;
   let canvasRef!: HTMLCanvasElement;
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream | null = null;
@@ -66,6 +67,9 @@ const SignDetectorBody = (props: {
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
       throw new Error("카메라를 사용할 수 없는 디바이스입니다.");
+    }
+    if (!videoRef || !canvasRef) {
+      throw new Error("비디오 요소를 찾을 수 없습니다.");
     }
 
     const media = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -84,6 +88,13 @@ const SignDetectorBody = (props: {
   };
 
   const predictMedia = () => {
+    if (!videoRef || !canvasRef) {
+      throw new Error("비디오 요소를 찾을 수 없습니다.");
+    }
+    if (!mounted) {
+      console.log("not mounted");
+      return;
+    }
     canvasRef.style.width = videoRef.clientWidth + "px";
     canvasRef.style.height = videoRef.clientHeight + "px";
     canvasRef.width = videoRef.videoWidth;
@@ -108,15 +119,18 @@ const SignDetectorBody = (props: {
 
   onMount(async () => {
     try {
+      mounted = true;
       await streamMedia();
       await handLandmarker.initialize();
       predictMedia();
     } catch (error) {
+      console.error(error);
       setHelp((error as Error).message);
     }
   });
 
   onCleanup(() => {
+    mounted = false;
     stream?.getTracks().forEach((track) => track.stop());
     if (typeof animationFrame === "number") {
       cancelAnimationFrame(animationFrame);
