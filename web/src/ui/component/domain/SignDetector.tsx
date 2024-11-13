@@ -1,5 +1,10 @@
-import { DrawingUtils, HandLandmarker } from "@mediapipe/tasks-vision";
+import {
+  DrawingUtils,
+  HandLandmarker,
+  NormalizedLandmark,
+} from "@mediapipe/tasks-vision";
 import { createPresence } from "@solid-primitives/presence";
+import { io, Socket } from "socket.io-client";
 import {
   createEffect,
   createSignal,
@@ -7,9 +12,11 @@ import {
   JSXElement,
   on,
   onCleanup,
+  onMount,
   Show,
 } from "solid-js";
 
+import { PREDICT_SERVER_URL } from "../../../service/constant/domain";
 import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
@@ -62,6 +69,7 @@ const SignDetectorBody = (props: {
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream | null = null;
   let animationFrame: null | number = null;
+  let socket: Socket;
 
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -80,7 +88,7 @@ const SignDetectorBody = (props: {
     return promise;
   };
 
-  const predictMedia = () => {
+  const drawLandmarks = (landmarks: NormalizedLandmark[][]) => {
     if (!videoRef || !canvasRef) {
       throw new Error("비디오 요소를 찾을 수 없습니다.");
     }
@@ -90,8 +98,6 @@ const SignDetectorBody = (props: {
     canvasRef.width = videoRef.videoWidth;
     canvasRef.height = videoRef.videoHeight;
 
-    const time = performance.now();
-    const { landmarks } = handLandmarker.detectForVideo(videoRef!, time);
     const context = canvasRef.getContext("2d")!;
     context.save();
     context.clearRect(0, 0, canvasRef.width, canvasRef.height);
@@ -104,6 +110,18 @@ const SignDetectorBody = (props: {
       drawingUtils.drawLandmarks(landmark, { color: "#ff7f00", lineWidth: 2 });
     });
     context.restore();
+  };
+
+  const predictMedia = () => {
+    if (!videoRef) {
+      throw new Error("비디오 요소를 찾을 수 없습니다.");
+    }
+    const time = performance.now();
+    const { landmarks } = handLandmarker.detectForVideo(videoRef!, time);
+
+    drawLandmarks(landmarks);
+    socket.emit("predict", landmarks);
+
     animationFrame = requestAnimationFrame(predictMedia);
   };
 
@@ -118,6 +136,14 @@ const SignDetectorBody = (props: {
     }
   });
 
+  onMount(() => {
+    socket = io(PREDICT_SERVER_URL, { transports: ["websocket"] });
+    socket.on("prediction_result", (data: { prediction: string[] }) => {
+      setWords(data.prediction.map((text) => ({ text })));
+    });
+    socket.on("error", setHelp);
+  });
+
   onCleanup(() => {
     initializePromiseRef.promise?.then(() => {
       stream?.getTracks().forEach((track) => track.stop());
@@ -126,6 +152,7 @@ const SignDetectorBody = (props: {
       }
       handLandmarker.close();
     });
+    socket.disconnect();
   });
 
   createEffect(
