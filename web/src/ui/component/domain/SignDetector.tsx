@@ -7,7 +7,6 @@ import {
   JSXElement,
   on,
   onCleanup,
-  onMount,
   Show,
 } from "solid-js";
 
@@ -15,6 +14,7 @@ import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
 import { handLandmarker } from "../../../service/util/handLandmarker";
+import { onMountAsync } from "../../../service/util/onMountAsync";
 import { PropsOf } from "../../../service/util/type";
 import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
@@ -67,23 +67,24 @@ const SignDetectorBody = (props: {
     if (!navigator.mediaDevices?.getDisplayMedia) {
       throw new Error("카메라를 사용할 수 없는 디바이스입니다.");
     }
+    if (!videoRef || !canvasRef) {
+      throw new Error("비디오 요소를 찾을 수 없습니다.");
+    }
 
     const media = await navigator.mediaDevices.getUserMedia({ video: true });
     stream = media;
     videoRef.srcObject = media;
     const { promise, resolve } = Promise.withResolvers<void>();
-    videoRef.addEventListener(
-      "loadeddata",
-      () => {
-        resolve();
-      },
-      { once: true },
-    );
+    videoRef.addEventListener("loadeddata", () => resolve(), { once: true });
 
     return promise;
   };
 
   const predictMedia = () => {
+    if (!videoRef || !canvasRef) {
+      throw new Error("비디오 요소를 찾을 수 없습니다.");
+    }
+
     canvasRef.style.width = videoRef.clientWidth + "px";
     canvasRef.style.height = videoRef.clientHeight + "px";
     canvasRef.width = videoRef.videoWidth;
@@ -106,22 +107,25 @@ const SignDetectorBody = (props: {
     animationFrame = requestAnimationFrame(predictMedia);
   };
 
-  onMount(async () => {
+  const initializePromiseRef = onMountAsync(async () => {
     try {
       await streamMedia();
       await handLandmarker.initialize();
       predictMedia();
     } catch (error) {
+      console.error(error);
       setHelp((error as Error).message);
     }
   });
 
   onCleanup(() => {
-    stream?.getTracks().forEach((track) => track.stop());
-    if (typeof animationFrame === "number") {
-      cancelAnimationFrame(animationFrame);
-    }
-    handLandmarker.close();
+    initializePromiseRef.promise?.then(() => {
+      stream?.getTracks().forEach((track) => track.stop());
+      if (typeof animationFrame === "number") {
+        cancelAnimationFrame(animationFrame);
+      }
+      handLandmarker.close();
+    });
   });
 
   createEffect(
