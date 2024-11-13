@@ -138,8 +138,8 @@ const SignDetectorBody = (props: {
 
   onMount(() => {
     socket = io(PREDICT_SERVER_URL, { transports: ["websocket"] });
-    socket.on("prediction_result", (data: { prediction: string[] }) => {
-      setWords(data.prediction.map((text) => ({ text })));
+    socket.on("prediction_result", (data: { appended: string }) => {
+      setWords((prev) => [...prev, { text: data.appended }]);
     });
     socket.on("error", setHelp);
   });
