@@ -1,6 +1,9 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 
+import { cn } from "../../service/util/cn";
+import { Button } from "../component/base/Button";
 import { Progress } from "../component/base/Progress";
 import { SignDetector } from "../component/domain/SignDetector";
 
@@ -43,7 +46,11 @@ const ProgressStatstics = (props: {
   );
 };
 
-const TimerStatstics = (props: { comment: string; title: string }) => {
+const TimerStatstics = (props: {
+  comment: string;
+  done: boolean;
+  title: string;
+}) => {
   let timer!: ReturnType<typeof setTimeout>;
   const startTime = Date.now();
 
@@ -64,6 +71,12 @@ const TimerStatstics = (props: { comment: string; title: string }) => {
     clearTimeout(timer);
   });
 
+  createEffect(() => {
+    if (props.done) {
+      clearTimeout(timer);
+    }
+  });
+
   return (
     <div class="h-14 max-w-72 flex-1">
       <div class="flex items-baseline justify-between">
@@ -79,7 +92,10 @@ export const Learning = () => {
   const [quiz, setQuiz] = createStore({
     index: 0,
     history: [] as History[],
+    done: false,
   });
+
+  const navigate = useNavigate();
 
   const precision = () =>
     quiz.history.length === 0
@@ -93,23 +109,42 @@ export const Learning = () => {
       <SignDetector
         key={quiz.index}
         onDone={() =>
-          setQuiz((prev) => ({
-            index: prev.index + 1,
-            history: [...prev.history, History.SKIP],
-          }))
+          quiz.index + 1 < quizes.length
+            ? setQuiz((prev) => ({
+                index: prev.index + 1,
+                history: [...prev.history, History.SKIP],
+              }))
+            : setQuiz({ done: true })
         }
-        open
+        open={!quiz.done}
         signPhraseType={quizes[quiz.index].type}
       />
       <div
-        class="absolute inset-0 flex flex-col"
-        style={{ top: "calc(50vh + 70px)" }}
+        class={cn(
+          "absolute inset-0 flex flex-col",
+          quiz.done && "justify-center",
+        )}
+        style={quiz.done ? { top: 0 } : { top: "calc(50vh + 70px)" }}
       >
-        <p class="p-7 text-xl font-medium text-gray-900">
-          <span class="mr-8 text-xl text-muted-foreground">제시 문장:</span>
-          {quizes[quiz.index].phrase}
-        </p>
-        <div class="flex flex-1 items-center justify-between gap-7 px-7 pb-7">
+        <Show
+          fallback={
+            <p class="pb-12 pl-7 text-2xl font-medium text-gray-900">
+              완료: 학교에서 만났을 때
+            </p>
+          }
+          when={!quiz.done}
+        >
+          <p class="p-7 text-xl font-medium text-gray-900">
+            <span class="mr-8 text-xl text-muted-foreground">제시 문장:</span>
+            {quizes[quiz.index].phrase}
+          </p>
+        </Show>
+        <div
+          class={cn(
+            "flex items-center justify-between gap-7 px-7 pb-7",
+            !quiz.done && "flex-1",
+          )}
+        >
           <ProgressStatstics
             comment="거의 다 왔어요"
             label={`${quiz.index + 1} / ${quizes.length}`}
@@ -122,8 +157,17 @@ export const Learning = () => {
             ratio={precision()}
             title="정확도"
           />
-          <TimerStatstics comment="잘하고 있어요" title="진행 시간" />
+          <TimerStatstics
+            comment="잘하고 있어요"
+            done={quiz.done}
+            title="진행 시간"
+          />
         </div>
+        <Show when={quiz.done}>
+          <div class="flex justify-end px-7 pt-5">
+            <Button onClick={() => navigate(-1)}>완료</Button>
+          </div>
+        </Show>
       </div>
     </div>
   );
