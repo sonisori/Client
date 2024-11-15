@@ -3,7 +3,6 @@ import { createStore } from "solid-js/store";
 
 import { Progress } from "../component/base/Progress";
 import { SignDetector } from "../component/domain/SignDetector";
-import { MenuLayout } from "../layout/MenuLayout";
 
 const quizes = [
   {
@@ -90,44 +89,42 @@ export const Learning = () => {
         100;
 
   return (
-    <MenuLayout>
-      <div class="fixed inset-y-0 left-72 right-0">
-        <SignDetector
-          key={quiz.index}
-          onDone={() =>
-            setQuiz((prev) => ({
-              index: prev.index + 1,
-              history: [...prev.history, History.SKIP],
-            }))
-          }
-          open
-          signPhraseType={quizes[quiz.index].type}
-        />
-        <div
-          class="absolute inset-0 flex flex-col"
-          style={{ top: "calc(50vh + 70px)" }}
-        >
-          <p class="p-7 text-xl font-medium text-gray-900">
-            <span class="mr-8 text-xl text-muted-foreground">제시 문장:</span>
-            {quizes[quiz.index].phrase}
-          </p>
-          <div class="flex flex-1 items-center justify-between gap-7 px-7 pb-7">
-            <ProgressStatstics
-              comment="거의 다 왔어요"
-              label={`${quiz.index + 1} / ${quizes.length}`}
-              ratio={((quiz.index + 1) / quizes.length) * 100}
-              title="진행도"
-            />
-            <ProgressStatstics
-              comment="잘하고 있어요"
-              label={precision() + "%"}
-              ratio={precision()}
-              title="정확도"
-            />
-            <TimerStatstics comment="잘하고 있어요" title="진행 시간" />
-          </div>
+    <div class="fixed inset-y-0 left-72 right-0">
+      <SignDetector
+        key={quiz.index}
+        onDone={() =>
+          setQuiz((prev) => ({
+            index: prev.index + 1,
+            history: [...prev.history, History.SKIP],
+          }))
+        }
+        open
+        signPhraseType={quizes[quiz.index].type}
+      />
+      <div
+        class="absolute inset-0 flex flex-col"
+        style={{ top: "calc(50vh + 70px)" }}
+      >
+        <p class="p-7 text-xl font-medium text-gray-900">
+          <span class="mr-8 text-xl text-muted-foreground">제시 문장:</span>
+          {quizes[quiz.index].phrase}
+        </p>
+        <div class="flex flex-1 items-center justify-between gap-7 px-7 pb-7">
+          <ProgressStatstics
+            comment="거의 다 왔어요"
+            label={`${quiz.index + 1} / ${quizes.length}`}
+            ratio={((quiz.index + 1) / quizes.length) * 100}
+            title="진행도"
+          />
+          <ProgressStatstics
+            comment="잘하고 있어요"
+            label={precision() + "%"}
+            ratio={precision()}
+            title="정확도"
+          />
+          <TimerStatstics comment="잘하고 있어요" title="진행 시간" />
         </div>
       </div>
-    </MenuLayout>
+    </div>
   );
 };
