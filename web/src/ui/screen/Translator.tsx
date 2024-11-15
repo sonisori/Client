@@ -9,7 +9,6 @@ import { ScrollArea } from "../component/base/ScrollAreaV2";
 import { PhraseBubble } from "../component/domain/PhraseBubble";
 import { SignDetector } from "../component/domain/SignDetector";
 import { Dropdown } from "../component/Dropdown";
-import { MenuLayout } from "../layout/MenuLayout";
 import { translatorScreenMachine } from "./Translator.machine";
 
 const STATE_HELP_LABEL_MAP = {
@@ -57,168 +56,165 @@ export const Translator = () => {
   );
 
   return (
-    <MenuLayout>
-      <div class="fixed inset-y-0 left-72 right-0">
-        <SignDetector
-          onCancel={() => {
-            send({ type: "DONE_SIGN" });
-          }}
-          onDone={() => {
-            setPhrases((phrases) => [
-              ...phrases,
-              {
-                author: "left",
-                text: `수어로 인식한 문장이 표시됩니다. ${phrases.length + 1}`,
-                type: "sign",
-              },
-            ]);
-            send({ type: "DONE_SIGN" });
-          }}
-          open={snapshot.matches("inputting left sign")}
-          signPhraseType={snapshot.context.signPhraseType!}
-        />
-        <ScrollArea
-          class="absolute inset-x-0"
-          direction="vertical"
-          style={{
-            // sign-detector의 바닥에 붙도록
-            top: snapshot.matches("inputting left sign")
-              ? "calc(50vh + 70px)"
-              : "0",
-            bottom: BOTTOM_BAR_HEIGHT_PX,
-          }}
-          viewportRef={setViewport}
-        >
-          <div
-            class="flex w-full flex-col justify-end p-5"
-            style={{
-              // 말풍선이 scroll-area의 바닥에 위치하도록
-              "min-height": snapshot.matches("inputting left sign")
-                ? `calc(50vh - 70px - ${BOTTOM_BAR_HEIGHT_PX})`
-                : `calc(100vh - ${BOTTOM_BAR_HEIGHT_PX})`,
-            }}
-          >
-            <div class="space-y-1">
-              <For
-                each={
-                  snapshot.matches("idle") && phrases().length === 0
-                    ? DEFAULT_PHRASES
-                    : phrases()
-                }
-              >
-                {(phrase) => (
-                  <PhraseBubble
-                    autoFocus={phrase.type === "text"}
-                    phrase={phrase}
-                  />
-                )}
-              </For>
-            </div>
-          </div>
-        </ScrollArea>
+    <div class="fixed inset-y-0 left-72 right-0">
+      <SignDetector
+        onCancel={() => {
+          send({ type: "DONE_SIGN" });
+        }}
+        onDone={() => {
+          setPhrases((phrases) => [
+            ...phrases,
+            {
+              author: "left",
+              text: `수어로 인식한 문장이 표시됩니다. ${phrases.length + 1}`,
+              type: "sign",
+            },
+          ]);
+          send({ type: "DONE_SIGN" });
+        }}
+        open={snapshot.matches("inputting left sign")}
+        signPhraseType={snapshot.context.signPhraseType!}
+      />
+      <ScrollArea
+        class="absolute inset-x-0"
+        direction="vertical"
+        style={{
+          // sign-detector의 바닥에 붙도록
+          top: snapshot.matches("inputting left sign")
+            ? "calc(50vh + 70px)"
+            : "0",
+          bottom: BOTTOM_BAR_HEIGHT_PX,
+        }}
+        viewportRef={setViewport}
+      >
         <div
-          class="fixed bottom-0 left-72 right-0 z-10 overflow-hidden border-t bg-white"
-          style={{ height: BOTTOM_BAR_HEIGHT_PX }}
+          class="flex w-full flex-col justify-end p-5"
+          style={{
+            // 말풍선이 scroll-area의 바닥에 위치하도록
+            "min-height": snapshot.matches("inputting left sign")
+              ? `calc(50vh - 70px - ${BOTTOM_BAR_HEIGHT_PX})`
+              : `calc(100vh - ${BOTTOM_BAR_HEIGHT_PX})`,
+          }}
         >
-          <Show when={idlePresence.isMounted()}>
-            <div
-              class={cn(
-                "absolute inset-x-5 inset-y-0 flex items-center justify-between duration-200 fill-mode-forwards",
-                {
-                  "animate-in fade-in slide-in-from-bottom-10":
-                    !snapshot.context.initialIdle && idlePresence.isVisible(),
-                  "animate-out fade-out slide-out-to-bottom-10":
-                    !idlePresence.isVisible(),
-                },
-              )}
-            >
-              <div class="flex gap-5">
-                <Dropdown
-                  menu={[
-                    {
-                      items: [
-                        {
-                          title: "평서문",
-                          onClick: () => {
-                            send({
-                              type: "INPUT_SIGN_LEFT",
-                              signPhraseType: "평서문",
-                            });
-                          },
-                        },
-                        {
-                          title: "의문문",
-                          onClick: () => {
-                            send({
-                              type: "INPUT_SIGN_LEFT",
-                              signPhraseType: "의문문",
-                            });
-                          },
-                        },
-                        {
-                          title: "감탄문",
-                          onClick: () => {
-                            send({
-                              type: "INPUT_SIGN_LEFT",
-                              signPhraseType: "감탄문",
-                            });
-                          },
-                        },
-                      ],
-                    },
-                  ]}
-                >
-                  <Button>수어 인식</Button>
-                </Dropdown>
-                <Button
-                  onClick={() => {
-                    send({ type: "INPUT_TEXT_LEFT" });
-                    setPhrases((phrases) => [
-                      ...phrases,
-                      { author: "left", text: "", type: "text" },
-                    ]);
-                  }}
-                >
-                  텍스트 입력
-                </Button>
-              </div>
-              <div class="flex gap-5">
-                <Button
-                  onClick={() => {
-                    send({ type: "INPUT_TEXT_RIGHT" });
-                    setPhrases((phrases) => [
-                      ...phrases,
-                      { author: "right", text: "", type: "text" },
-                    ]);
-                  }}
-                  variant="secondary"
-                >
-                  텍스트 입력
-                </Button>
-              </div>
-            </div>
-          </Show>
-          <Show when={inputtingPresence.isMounted()}>
-            <p
-              class={cn(
-                "absolute inset-x-5 inset-y-0 flex items-center text-sm text-primary/80 duration-200 fill-mode-forwards",
-                {
-                  "animate-in fade-in slide-in-from-top-10":
-                    inputtingPresence.isVisible(),
-                  "animate-out fade-out slide-out-to-top-10":
-                    !inputtingPresence.isVisible(),
-                },
-              )}
-              onClick={() =>
-                snapshot.can({ type: "DONE_TEXT" }) &&
-                send({ type: "DONE_TEXT" })
+          <div class="space-y-1">
+            <For
+              each={
+                snapshot.matches("idle") && phrases().length === 0
+                  ? DEFAULT_PHRASES
+                  : phrases()
               }
             >
-              {inputtingHelpMemo()}
-            </p>
-          </Show>
+              {(phrase) => (
+                <PhraseBubble
+                  autoFocus={phrase.type === "text"}
+                  phrase={phrase}
+                />
+              )}
+            </For>
+          </div>
         </div>
+      </ScrollArea>
+      <div
+        class="fixed bottom-0 left-72 right-0 z-10 overflow-hidden border-t bg-white"
+        style={{ height: BOTTOM_BAR_HEIGHT_PX }}
+      >
+        <Show when={idlePresence.isMounted()}>
+          <div
+            class={cn(
+              "absolute inset-x-5 inset-y-0 flex items-center justify-between duration-200 fill-mode-forwards",
+              {
+                "animate-in fade-in slide-in-from-bottom-10":
+                  !snapshot.context.initialIdle && idlePresence.isVisible(),
+                "animate-out fade-out slide-out-to-bottom-10":
+                  !idlePresence.isVisible(),
+              },
+            )}
+          >
+            <div class="flex gap-5">
+              <Dropdown
+                menu={[
+                  {
+                    items: [
+                      {
+                        title: "평서문",
+                        onClick: () => {
+                          send({
+                            type: "INPUT_SIGN_LEFT",
+                            signPhraseType: "평서문",
+                          });
+                        },
+                      },
+                      {
+                        title: "의문문",
+                        onClick: () => {
+                          send({
+                            type: "INPUT_SIGN_LEFT",
+                            signPhraseType: "의문문",
+                          });
+                        },
+                      },
+                      {
+                        title: "감탄문",
+                        onClick: () => {
+                          send({
+                            type: "INPUT_SIGN_LEFT",
+                            signPhraseType: "감탄문",
+                          });
+                        },
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <Button>수어 인식</Button>
+              </Dropdown>
+              <Button
+                onClick={() => {
+                  send({ type: "INPUT_TEXT_LEFT" });
+                  setPhrases((phrases) => [
+                    ...phrases,
+                    { author: "left", text: "", type: "text" },
+                  ]);
+                }}
+              >
+                텍스트 입력
+              </Button>
+            </div>
+            <div class="flex gap-5">
+              <Button
+                onClick={() => {
+                  send({ type: "INPUT_TEXT_RIGHT" });
+                  setPhrases((phrases) => [
+                    ...phrases,
+                    { author: "right", text: "", type: "text" },
+                  ]);
+                }}
+                variant="secondary"
+              >
+                텍스트 입력
+              </Button>
+            </div>
+          </div>
+        </Show>
+        <Show when={inputtingPresence.isMounted()}>
+          <p
+            class={cn(
+              "absolute inset-x-5 inset-y-0 flex items-center text-sm text-primary/80 duration-200 fill-mode-forwards",
+              {
+                "animate-in fade-in slide-in-from-top-10":
+                  inputtingPresence.isVisible(),
+                "animate-out fade-out slide-out-to-top-10":
+                  !inputtingPresence.isVisible(),
+              },
+            )}
+            onClick={() =>
+              snapshot.can({ type: "DONE_TEXT" }) && send({ type: "DONE_TEXT" })
+            }
+          >
+            {inputtingHelpMemo()}
+          </p>
+        </Show>
       </div>
-    </MenuLayout>
+    </div>
   );
 };

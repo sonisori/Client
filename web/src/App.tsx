@@ -1,5 +1,7 @@
 import { Router } from "@solidjs/router";
 
+import { LogoLayout } from "./ui/layout/LogoLayout";
+import { MenuLayout } from "./ui/layout/MenuLayout";
 import { ViewportLayout } from "./ui/layout/ViewportLayout";
 import { Learning } from "./ui/screen/Learning";
 import { LearningList } from "./ui/screen/LearningList";
@@ -19,31 +21,43 @@ export const App = () => {
           {[
             {
               path: "/",
-              component: () => <Redirect to="/translator" />,
+              component: () => <Redirect to="/app/translator" />,
             },
             {
-              path: "/sign-in",
-              component: () => <SignIn />,
+              path: "/web",
+              component: (props) => <LogoLayout children={props.children} />,
+              children: [
+                {
+                  path: "/sign-in",
+                  component: () => <SignIn />,
+                },
+                {
+                  path: "/sign-up",
+                  component: () => <SignUp />,
+                },
+              ],
             },
             {
-              path: "/sign-up",
-              component: () => <SignUp />,
-            },
-            {
-              path: "/translator",
-              component: () => <Translator />,
-            },
-            {
-              path: "/learning",
-              component: () => <LearningList />,
-            },
-            {
-              path: "/learning/:id",
-              component: () => <Learning />,
-            },
-            {
-              path: "/setting",
-              component: () => <Setting />,
+              path: "/app",
+              component: (props) => <MenuLayout children={props.children} />,
+              children: [
+                {
+                  path: "/learning",
+                  component: () => <LearningList />,
+                },
+                {
+                  path: "/learning/:id",
+                  component: () => <Learning />,
+                },
+                {
+                  path: "/setting",
+                  component: () => <Setting />,
+                },
+                {
+                  path: "/translator",
+                  component: () => <Translator />,
+                },
+              ],
             },
             {
               path: "*",

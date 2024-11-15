@@ -2,7 +2,6 @@ import { For, Match, Switch } from "solid-js";
 
 import { Progress } from "../component/base/Progress";
 import { Check } from "../icon/Check";
-import { MenuLayout } from "../layout/MenuLayout";
 
 const Card = (props: {
   description: string;
@@ -12,7 +11,7 @@ const Card = (props: {
   total: number;
 }) => {
   return (
-    <a href={`/learning/${props.id}`}>
+    <a href={`/app/learning/${props.id}`}>
       <div class="rounded-lg p-5 transition-all hover:bg-accent hover:text-accent-foreground">
         <h2 class="text-lg font-medium">{props.title}</h2>
         <p class="text-sm text-muted-foreground">{props.description}</p>
@@ -80,18 +79,16 @@ export const LearningList = () => {
     },
   ];
   return (
-    <MenuLayout>
-      <div class="fixed inset-y-0 left-72 right-0 overflow-y-scroll">
-        <div class="px-20 py-12">
-          <div class="pl-5">
-            <h1 class="text-xl font-semibold">수어 학습</h1>
-            <p class="text text-muted-foreground">AI와 함께 배우는 수어</p>
-          </div>
-          <div class="grid grid-cols-2 gap-3 pt-10">
-            <For each={cards}>{(card) => <Card {...card} />}</For>
-          </div>
+    <div class="fixed inset-y-0 left-72 right-0 overflow-y-scroll">
+      <div class="px-20 py-12">
+        <div class="pl-5">
+          <h1 class="text-xl font-semibold">수어 학습</h1>
+          <p class="text text-muted-foreground">AI와 함께 배우는 수어</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 pt-10">
+          <For each={cards}>{(card) => <Card {...card} />}</For>
         </div>
       </div>
-    </MenuLayout>
+    </div>
   );
 };

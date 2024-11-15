@@ -47,13 +47,13 @@ export const MenuLayout = (props: { children: JSXElement }) => {
         <div class="space-y-2 p-5">
           <MenuLink
             description="실시간으로 통역을 제공"
-            href="/translator"
+            href="/app/translator"
             icon={<HandRaised />}
             title="수어 번역기"
           />
           <MenuLink
             description="수어를 쉽고 빠르게 학습"
-            href="/learning"
+            href="/app/learning"
             icon={<School />}
             title="수어 학습"
           />
@@ -62,7 +62,7 @@ export const MenuLayout = (props: { children: JSXElement }) => {
         <div class="space-y-2 p-5">
           <MenuLink
             description="서비스 사용에 필요한 설정"
-            href="/setting"
+            href="/app/setting"
             icon={<Setting />}
             title="설정"
           />
