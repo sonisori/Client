@@ -82,8 +82,8 @@ export const LearningList = () => {
     <div class="fixed inset-y-0 left-72 right-0 overflow-y-scroll">
       <div class="px-20 py-12">
         <div class="pl-5">
-          <h1 class="text-xl font-semibold">수어 학습</h1>
-          <p class="text text-muted-foreground">AI와 함께 배우는 수어</p>
+          <h1 class="text-xl font-semibold">수어 퀴즈</h1>
+          <p class="text text-muted-foreground">수어로 문장 만들어보기</p>
         </div>
         <div class="grid grid-cols-2 gap-3 pt-10">
           <For each={cards}>{(card) => <Card {...card} />}</For>

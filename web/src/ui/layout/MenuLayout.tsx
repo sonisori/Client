@@ -52,10 +52,16 @@ export const MenuLayout = (props: { children: JSXElement }) => {
             title="수어 번역기"
           />
           <MenuLink
-            description="수어를 쉽고 빠르게 학습"
-            href="/app/learning"
+            description="AI와 함께 배우는 수어"
+            href="/app/dictionary"
             icon={<School />}
             title="수어 학습"
+          />
+          <MenuLink
+            description="수어로 문장 만들어보기"
+            href="/app/learning"
+            icon={<School />}
+            title="수어 퀴즈"
           />
         </div>
         <div class="ml-8 mr-5 border-t" />
