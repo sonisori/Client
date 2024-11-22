@@ -3,6 +3,7 @@ import { Router } from "@solidjs/router";
 import { LogoLayout } from "./ui/layout/LogoLayout";
 import { MenuLayout } from "./ui/layout/MenuLayout";
 import { ViewportLayout } from "./ui/layout/ViewportLayout";
+import { Dictionary } from "./ui/screen/Dictionary";
 import { DictionaryList } from "./ui/screen/DictionaryList";
 import { Learning } from "./ui/screen/Learning";
 import { LearningList } from "./ui/screen/LearningList";
@@ -45,6 +46,10 @@ export const App = () => {
                 {
                   path: "/dictionary",
                   component: () => <DictionaryList />,
+                },
+                {
+                  path: "/dictionary/:id",
+                  component: () => <Dictionary />,
                 },
                 {
                   path: "/learning",
