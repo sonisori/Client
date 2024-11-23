@@ -16,6 +16,7 @@ import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
 import { handLandmarker } from "../../../service/util/handLandmarker";
+import { Task } from "../../../service/util/task";
 import { PropsOf } from "../../../service/util/type";
 import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
@@ -50,8 +51,6 @@ const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
   );
 };
 
-const pipeSet = new Set<Promise<void>>();
-
 const SignDetectorBody = (props: {
   key?: number;
   onCancel?: () => void;
@@ -65,8 +64,7 @@ const SignDetectorBody = (props: {
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream | null = null;
   let animationFrame: null | number = null;
-  const pipe = Promise.resolve().catch(console.error);
-  pipeSet.add(pipe);
+  const task = new Task();
 
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -140,14 +138,14 @@ const SignDetectorBody = (props: {
     }
   };
 
-  onMount(() => pipe.then(initialize));
-  onCleanup(() => pipe.then(cleanup));
+  onMount(() => task.pipe(initialize));
+  onCleanup(() => task.pipe(cleanup));
 
   createEventListener(document, "visibilitychange", () => {
     if (document.hidden) {
-      pipe.then(cleanup);
+      task.pipe(cleanup);
     } else {
-      pipe.then(initialize);
+      task.pipe(initialize);
     }
   });
 
