@@ -1,4 +1,5 @@
 import { DrawingUtils, HandLandmarker } from "@mediapipe/tasks-vision";
+import { createEventListener } from "@solid-primitives/event-listener";
 import { createPresence } from "@solid-primitives/presence";
 import {
   createEffect,
@@ -7,6 +8,7 @@ import {
   JSXElement,
   on,
   onCleanup,
+  onMount,
   Show,
 } from "solid-js";
 
@@ -14,7 +16,7 @@ import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
 import { handLandmarker } from "../../../service/util/handLandmarker";
-import { onMountAsync } from "../../../service/util/onMountAsync";
+import { Task } from "../../../service/util/task";
 import { PropsOf } from "../../../service/util/type";
 import { Badge } from "../base/Badge";
 import { Button } from "../base/Button";
@@ -62,6 +64,7 @@ const SignDetectorBody = (props: {
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream | null = null;
   let animationFrame: null | number = null;
+  const task = new Task();
 
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -104,28 +107,46 @@ const SignDetectorBody = (props: {
       drawingUtils.drawLandmarks(landmark, { color: "#ff7f00", lineWidth: 2 });
     });
     context.restore();
-    animationFrame = requestAnimationFrame(predictMedia);
+    if (typeof animationFrame == "number") {
+      animationFrame = requestAnimationFrame(predictMedia);
+    }
   };
 
-  const initializePromiseRef = onMountAsync(async () => {
+  const initialize = async () => {
     try {
       await streamMedia();
       await handLandmarker.initialize();
-      predictMedia();
+      if (animationFrame == null) {
+        animationFrame = requestAnimationFrame(predictMedia);
+      }
     } catch (error) {
       console.error(error);
       setHelp((error as Error).message);
     }
-  });
+  };
 
-  onCleanup(() => {
-    initializePromiseRef.promise?.then(() => {
-      stream?.getTracks().forEach((track) => track.stop());
-      if (typeof animationFrame === "number") {
+  const cleanup = () => {
+    try {
+      if (typeof animationFrame == "number") {
         cancelAnimationFrame(animationFrame);
+        animationFrame = null;
       }
       handLandmarker.close();
-    });
+      stream?.getTracks().forEach((track) => track.stop());
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  onMount(() => task.pipe(initialize));
+  onCleanup(() => task.pipe(cleanup));
+
+  createEventListener(document, "visibilitychange", () => {
+    if (document.hidden) {
+      task.pipe(cleanup);
+    } else {
+      task.pipe(initialize);
+    }
   });
 
   createEffect(
