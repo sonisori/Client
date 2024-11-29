@@ -57,6 +57,7 @@ const SignDetectorBody = (props: {
   onDone?: () => void;
   signPhraseType: SignPhraseType;
 }) => {
+  const [loaded, setLoaded] = createSignal(false);
   const [words, setWords] = createSignal<Word[]>([]);
   const [help, setHelp] = createSignal<null | string>(null);
 
@@ -119,6 +120,7 @@ const SignDetectorBody = (props: {
       if (animationFrame == null) {
         animationFrame = requestAnimationFrame(predictMedia);
       }
+      setLoaded(true);
     } catch (error) {
       console.error(error);
       setHelp((error as Error).message);
@@ -133,6 +135,7 @@ const SignDetectorBody = (props: {
       }
       handLandmarker.close();
       stream?.getTracks().forEach((track) => track.stop());
+      setLoaded(false);
     } catch (error) {
       console.error(error);
     }
@@ -173,6 +176,24 @@ const SignDetectorBody = (props: {
             ref={canvasRef}
             style={{ transform: "rotateY(180deg)" }}
           />
+          <Show when={loaded()}>
+            <div
+              class="duration-[1500ms] absolute inset-0 animate-out fade-out-0 fill-mode-forwards"
+              style={{ "animation-delay": "3000ms" }}
+            >
+              <img
+                alt="손 위치 가이드"
+                class="absolute left-[16%] top-1/2 w-40"
+                src="/asset/hand-guide.png"
+                style={{ transform: "rotateY(180deg)" }}
+              />
+              <img
+                alt="손 위치 가이드"
+                class="absolute right-[16%] top-1/2 w-40"
+                src="/asset/hand-guide.png"
+              />
+            </div>
+          </Show>
         </div>
         <Badge
           class="absolute bottom-5 right-5 select-none bg-white"
