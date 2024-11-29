@@ -55,6 +55,19 @@ export const DictionaryList = () => {
               </For>
             </TableBody>
           </Table>
+          <div class="mt-14 rounded-lg bg-gray-50 p-5">
+            <p class="mb-3 font-medium text-gray-900">
+              수어•지문자•지숫자의 설명에 사용한 손가락의 번호
+            </p>
+            <div class="flex gap-5">
+              <img alt="손가락 번호" src="/asset/hand-num.png" />
+              <p class="break-keep text-gray-800">
+                수어 / 지문자 / 지숫자의 설명에 손가락을 사용할 경우 손가락의
+                이름을 사용하지 않고 손가락의 번호를 사용하였다. 사용한 손가락의
+                번호는 다음과 같다.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
