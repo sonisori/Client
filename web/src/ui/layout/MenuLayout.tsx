@@ -82,13 +82,13 @@ export const MenuLayout = (props: { children: JSXElement }) => {
             </Match>
             <Match when={!user()}>
               <div>
-                <Button as="a" href="/web/sign-in" variant="link">
+                <Button as="a" href="/web/sign-up" variant="link">
                   회원가입
                 </Button>
                 <Button
                   as="a"
                   class="opacity-90"
-                  href="/web/sign-up"
+                  href="/web/sign-in"
                   variant="link"
                 >
                   로그인
