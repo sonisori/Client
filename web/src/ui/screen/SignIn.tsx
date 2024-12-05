@@ -1,5 +1,7 @@
 import { createSignal, Show } from "solid-js";
 
+import { useAsync } from "../../service/hook/useAsync";
+import { client } from "../../service/util/api";
 import { cn } from "../../service/util/cn";
 import { Alert, AlertDescription, AlertTitle } from "../component/base/Alert";
 import { Button } from "../component/base/Button";
@@ -32,8 +34,10 @@ export const SignIn = () => {
   let passwordField!: HTMLInputElement;
   let loginForm!: HTMLFormElement;
 
+  const { loading, wrap } = useAsync();
+
   const [showPassword, setShowPassword] = createSignal(false);
-  const error = false;
+  const [error, setError] = createSignal(false);
 
   return (
     <div class="p-20 pt-32">
@@ -48,11 +52,17 @@ export const SignIn = () => {
             return;
           }
           const form = new FormData(loginForm);
-          console.log(Object.fromEntries(form));
+          wrap(() =>
+            client
+              .post("api/auth/login", { json: Object.fromEntries(form) })
+              .json()
+              .then(console.log)
+              .catch(() => void setError(true)),
+          );
         }}
         ref={loginForm}
       >
-        <Show when={error}>
+        <Show when={error()}>
           <LoginError />
         </Show>
         <TextFieldRoot name="email">
@@ -66,7 +76,7 @@ export const SignIn = () => {
           <TextFieldLabel>비밀번호</TextFieldLabel>
           <TextField ref={passwordField} type="password" />
         </TextFieldRoot>
-        <Button class="mt-8 block w-full" type="submit">
+        <Button class="mt-8 block w-full" disabled={loading()} type="submit">
           <Show fallback="계속" when={showPassword()}>
             로그인
           </Show>

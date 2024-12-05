@@ -1,5 +1,8 @@
+import { HTTPError } from "ky";
 import { createSignal, Show } from "solid-js";
 
+import { useAsync } from "../../service/hook/useAsync";
+import { client } from "../../service/util/api";
 import { cn } from "../../service/util/cn";
 import { Alert, AlertDescription, AlertTitle } from "../component/base/Alert";
 import { Button } from "../component/base/Button";
@@ -9,7 +12,7 @@ import {
   TextFieldRoot,
 } from "../component/base/TextField";
 
-const LoginError = () => (
+const LoginError = (props: { message: string }) => (
   <Alert class="mb-6" variant="destructive">
     <svg class="h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -22,9 +25,7 @@ const LoginError = () => (
       />
     </svg>
     <AlertTitle>다시 시도해주세요.</AlertTitle>
-    <AlertDescription>
-      올바르지 않은 이메일 또는 비밀번호입니다.
-    </AlertDescription>
+    <AlertDescription>{props.message}</AlertDescription>
   </Alert>
 );
 
@@ -32,8 +33,10 @@ export const SignUp = () => {
   let passwordField!: HTMLInputElement;
   let loginForm!: HTMLFormElement;
 
+  const { loading, wrap } = useAsync();
+
   const [showPassword, setShowPassword] = createSignal(false);
-  const error = false;
+  const [error, setError] = createSignal<null | string>(null);
 
   return (
     <div class="p-20 pt-32">
@@ -48,12 +51,27 @@ export const SignUp = () => {
             return;
           }
           const form = new FormData(loginForm);
-          console.log(Object.fromEntries(form));
+          wrap(() =>
+            client
+              .post("api/auth/signup", { json: Object.fromEntries(form) })
+              .json()
+              .then(console.log)
+              .catch((error: HTTPError) => {
+                switch (error.response.status) {
+                  case 409:
+                    setError("이미 존재하는 이메일입니다.");
+                    return;
+                  default:
+                    setError("올바르지 않은 입력입니다.");
+                    return;
+                }
+              }),
+          );
         }}
         ref={loginForm}
       >
-        <Show when={error}>
-          <LoginError />
+        <Show when={error()}>
+          {(error) => <LoginError message={error()} />}
         </Show>
         <TextFieldRoot name="email">
           <TextFieldLabel>이메일</TextFieldLabel>
@@ -61,12 +79,19 @@ export const SignUp = () => {
         </TextFieldRoot>
         <TextFieldRoot
           class={cn("mt-5", !showPassword() && "hidden")}
+          name="name"
+        >
+          <TextFieldLabel>이름</TextFieldLabel>
+          <TextField ref={passwordField} />
+        </TextFieldRoot>
+        <TextFieldRoot
+          class={cn("mt-5", !showPassword() && "hidden")}
           name="password"
         >
           <TextFieldLabel>비밀번호</TextFieldLabel>
-          <TextField ref={passwordField} type="password" />
+          <TextField type="password" />
         </TextFieldRoot>
-        <Button class="mt-8 block w-full" type="submit">
+        <Button class="mt-8 block w-full" disabled={loading()} type="submit">
           <Show fallback="계속" when={showPassword()}>
             회원가입
           </Show>

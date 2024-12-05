@@ -1,7 +1,6 @@
 import { createSignal } from "solid-js";
 
 import { Auth } from "../type/auth";
-import { client } from "../util/api";
 
 export const useAuth = () => {
   const [auth, setAuth] = createSignal<Auth | null>(null);
@@ -10,7 +9,6 @@ export const useAuth = () => {
     setAuth(() => ({
       token,
       user: { email: "", name: "" },
-      client: client.extend({ headers: { Authorization: `Bearer ${token}` } }),
     }));
   };
 
