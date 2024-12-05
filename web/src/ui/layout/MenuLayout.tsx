@@ -1,6 +1,7 @@
 import { JSXElement, Match, Switch } from "solid-js";
 
 import { SERVICE_NAME } from "../../service/constant/domain";
+import { useAsync } from "../../service/hook/useAsync";
 import { useAuth } from "../../service/hook/useAuth";
 import { Button } from "../component/base/Button";
 import { HandRaised } from "../icon/HandRaised";
@@ -34,7 +35,8 @@ const MenuLink = (props: {
 };
 
 export const MenuLayout = (props: { children: JSXElement }) => {
-  const { auth, freeAuth } = useAuth();
+  const { loading, wrap } = useAsync();
+  const { auth, logout } = useAuth();
   const user = () => auth()?.user;
   return (
     <div>
@@ -76,7 +78,11 @@ export const MenuLayout = (props: { children: JSXElement }) => {
         <div class="flex flex-1 flex-col items-end justify-end p-5">
           <Switch>
             <Match when={user()}>
-              <Button onClick={freeAuth} variant="link">
+              <Button
+                disabled={loading()}
+                onClick={() => wrap(() => logout().catch(() => {}))}
+                variant="link"
+              >
                 로그아웃
               </Button>
             </Match>
