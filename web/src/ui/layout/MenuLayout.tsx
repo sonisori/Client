@@ -34,7 +34,7 @@ const MenuLink = (props: {
 };
 
 export const MenuLayout = (props: { children: JSXElement }) => {
-  const { auth, logout } = useAuth();
+  const { auth, freeAuth } = useAuth();
   const user = () => auth()?.user;
   return (
     <div>
@@ -76,7 +76,7 @@ export const MenuLayout = (props: { children: JSXElement }) => {
         <div class="flex flex-1 flex-col items-end justify-end p-5">
           <Switch>
             <Match when={user()}>
-              <Button onClick={logout} variant="link">
+              <Button onClick={freeAuth} variant="link">
                 로그아웃
               </Button>
             </Match>
