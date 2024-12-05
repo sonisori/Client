@@ -1,6 +1,7 @@
 import { createSignal } from "solid-js";
 
 import { Auth } from "../type/auth";
+import { client } from "../util/api";
 
 export const useAuth = () => {
   const [auth, setAuth] = createSignal<Auth | null>(null);
@@ -12,7 +13,8 @@ export const useAuth = () => {
     }));
   };
 
-  const freeAuth = () => {
+  const logout = async () => {
+    await client.delete("api/auth/logout");
     setAuth(null);
   };
 
@@ -20,6 +22,6 @@ export const useAuth = () => {
     auth,
     setAuth,
     registerToken,
-    freeAuth,
+    logout,
   };
 };
