@@ -1,4 +1,3 @@
-import { useNavigate } from "@solidjs/router";
 import { JSXElement, Match, Switch } from "solid-js";
 
 import { SERVICE_NAME } from "../../service/constant/domain";
@@ -35,7 +34,6 @@ const MenuLink = (props: {
 };
 
 export const MenuLayout = (props: { children: JSXElement }) => {
-  const navigate = useNavigate();
   const { auth, logout } = useAuth();
   const user = () => auth()?.user;
   return (
@@ -83,9 +81,19 @@ export const MenuLayout = (props: { children: JSXElement }) => {
               </Button>
             </Match>
             <Match when={!user()}>
-              <Button onClick={() => navigate("/web/sign-in")} variant="link">
-                로그인
-              </Button>
+              <div>
+                <Button as="a" href="/web/sign-in" variant="link">
+                  회원가입
+                </Button>
+                <Button
+                  as="a"
+                  class="opacity-90"
+                  href="/web/sign-up"
+                  variant="link"
+                >
+                  로그인
+                </Button>
+              </div>
             </Match>
           </Switch>
         </div>
