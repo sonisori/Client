@@ -1,13 +1,18 @@
+import { useLocation } from "@solidjs/router";
 import { createSignal, JSXElement, Show } from "solid-js";
 
 import { SERVICE_NAME } from "../../service/constant/domain";
 
 export const Splash = (props: { children: JSXElement }) => {
-  const [loading, setLoading] = createSignal(true);
+  const { pathname } = useLocation();
+  const showLoading = pathname.startsWith("/app");
+  const [loading, setLoading] = createSignal(showLoading);
 
-  setTimeout(() => {
-    setLoading(false);
-  }, 1000);
+  if (showLoading) {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }
 
   return (
     <Show fallback={props.children} when={loading()}>

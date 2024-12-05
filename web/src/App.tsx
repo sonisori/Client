@@ -18,64 +18,67 @@ import { Translator } from "./ui/screen/Translator";
 export const App = () => {
   return (
     <ViewportLayout>
-      <Splash>
-        <Router>
-          {[
-            {
-              path: "/",
-              component: () => <Redirect to="/app/translator" />,
-            },
-            {
-              path: "/web",
-              component: (props) => <LogoLayout children={props.children} />,
-              children: [
-                {
-                  path: "/sign-in",
-                  component: () => <SignIn />,
-                },
-                {
-                  path: "/sign-up",
-                  component: () => <SignUp />,
-                },
-              ],
-            },
-            {
-              path: "/app",
-              component: (props) => <MenuLayout children={props.children} />,
-              children: [
-                {
-                  path: "/dictionary",
-                  component: () => <DictionaryList />,
-                },
-                {
-                  path: "/dictionary/:id",
-                  component: () => <Dictionary />,
-                },
-                {
-                  path: "/learning",
-                  component: () => <LearningList />,
-                },
-                {
-                  path: "/learning/:id",
-                  component: () => <Learning />,
-                },
-                {
-                  path: "/setting",
-                  component: () => <Setting />,
-                },
-                {
-                  path: "/translator",
-                  component: () => <Translator />,
-                },
-              ],
-            },
-            {
-              path: "*",
-              component: () => <NotFound />,
-            },
-          ]}
-        </Router>
-      </Splash>
+      <Router>
+        {[
+          {
+            component: (props) => <Splash children={props.children} />,
+            children: [
+              {
+                path: "/",
+                component: () => <Redirect to="/app/translator" />,
+              },
+              {
+                path: "/web",
+                component: (props) => <LogoLayout children={props.children} />,
+                children: [
+                  {
+                    path: "/sign-in",
+                    component: () => <SignIn />,
+                  },
+                  {
+                    path: "/sign-up",
+                    component: () => <SignUp />,
+                  },
+                ],
+              },
+              {
+                path: "/app",
+                component: (props) => <MenuLayout children={props.children} />,
+                children: [
+                  {
+                    path: "/dictionary",
+                    component: () => <DictionaryList />,
+                  },
+                  {
+                    path: "/dictionary/:id",
+                    component: () => <Dictionary />,
+                  },
+                  {
+                    path: "/learning",
+                    component: () => <LearningList />,
+                  },
+                  {
+                    path: "/learning/:id",
+                    component: () => <Learning />,
+                  },
+                  {
+                    path: "/setting",
+                    component: () => <Setting />,
+                  },
+                  {
+                    path: "/translator",
+                    component: () => <Translator />,
+                  },
+                ],
+              },
+              {
+                path: "*",
+                component: () => <NotFound />,
+              },
+            ],
+          },
+        ]}
+      </Router>
     </ViewportLayout>
   );
 };
