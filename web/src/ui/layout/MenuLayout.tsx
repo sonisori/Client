@@ -1,6 +1,8 @@
-import { JSXElement } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { JSXElement, Match, Switch } from "solid-js";
 
 import { SERVICE_NAME } from "../../service/constant/domain";
+import { useAuth } from "../../service/hook/useAuth";
 import { Button } from "../component/base/Button";
 import { HandRaised } from "../icon/HandRaised";
 import { School } from "../icon/School";
@@ -33,14 +35,14 @@ const MenuLink = (props: {
 };
 
 export const MenuLayout = (props: { children: JSXElement }) => {
-  const user = {
-    name: "이동현",
-  };
+  const navigate = useNavigate();
+  const { auth, logout } = useAuth();
+  const user = () => auth()?.user;
   return (
     <div>
-      <div class="fixed inset-0 right-auto w-72 border-r">
+      <div class="fixed inset-0 right-auto flex w-72 flex-col border-r">
         <div class="p-5 pl-8">
-          <p class="text-sm text-gray-500">{user.name}님</p>
+          <p class="text-sm text-gray-500">{user()?.name ?? "게스트"}님</p>
           <p class="text-base font-medium">{SERVICE_NAME}</p>
         </div>
         <div class="ml-8 mr-5 border-t" />
@@ -72,6 +74,20 @@ export const MenuLayout = (props: { children: JSXElement }) => {
             icon={<Setting />}
             title="설정"
           />
+        </div>
+        <div class="flex flex-1 flex-col items-end justify-end p-5">
+          <Switch>
+            <Match when={user()}>
+              <Button onClick={logout} variant="link">
+                로그아웃
+              </Button>
+            </Match>
+            <Match when={!user()}>
+              <Button onClick={() => navigate("/web/sign-in")} variant="link">
+                로그인
+              </Button>
+            </Match>
+          </Switch>
         </div>
       </div>
       <div class="absolute inset-0 left-72">{props.children}</div>
