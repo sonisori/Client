@@ -6,11 +6,12 @@ import { client } from "../util/api";
 export const useAuth = () => {
   const [auth, setAuth] = createSignal<Auth | null>(null);
 
-  const registerToken = (token: string) => {
-    setAuth(() => ({
-      token,
-      user: { email: "", name: "" },
-    }));
+  const loadUser = async () => {
+    setAuth({
+      user: await client
+        .get("api/users/me")
+        .json<{ name: string; socialType: string }>(),
+    });
   };
 
   const logout = async () => {
@@ -20,8 +21,7 @@ export const useAuth = () => {
 
   return {
     auth,
-    setAuth,
-    registerToken,
+    loadUser,
     logout,
   };
 };
