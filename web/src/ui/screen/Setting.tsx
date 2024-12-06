@@ -10,7 +10,7 @@ import {
 } from "../component/base/TextField";
 
 export const Setting = () => {
-  const { auth, loadUser } = useAuth();
+  const { auth, loadUser } = useAuth({ goToWeb: true });
   const { loading, wrap } = useAsync();
   return (
     <div class="fixed inset-y-0 left-72 right-0 overflow-y-scroll">
