@@ -134,8 +134,8 @@ const SignDetectorBody = (props: {
       socket = io(import.meta.env.VITE_SONISORI_AI_API_URL, {
         transports: ["websocket"],
       });
-      socket.on("prediction_result", (data: { prediction: string[] }) => {
-        setWords(data.prediction.map((text) => ({ text })));
+      socket.on("prediction_result", (data: { appended: string }) => {
+        setWords((prev) => [...prev, { text: data.appended }]);
       });
       socket.on("error", setHelp);
 
