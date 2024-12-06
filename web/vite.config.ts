@@ -11,6 +11,11 @@ export default defineConfig({
         changeOrigin: true,
         cookieDomainRewrite: "localhost",
       },
+      "^:5002/.*": {
+        target: "ws://api.sonisori.site:5002",
+        ws: true,
+        changeOrigin: true,
+      },
     },
   },
 });
