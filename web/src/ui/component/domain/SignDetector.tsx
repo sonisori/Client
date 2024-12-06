@@ -1,6 +1,11 @@
-import { DrawingUtils, HandLandmarker } from "@mediapipe/tasks-vision";
+import {
+  DrawingUtils,
+  HandLandmarker,
+  NormalizedLandmark,
+} from "@mediapipe/tasks-vision";
 import { createEventListener } from "@solid-primitives/event-listener";
 import { createPresence } from "@solid-primitives/presence";
+import { io, Socket } from "socket.io-client";
 import {
   createEffect,
   createSignal,
@@ -65,6 +70,7 @@ const SignDetectorBody = (props: {
   let videoRef!: HTMLVideoElement;
   let stream: MediaStream | null = null;
   let animationFrame: null | number = null;
+  let socket: Socket;
   const task = new Task();
 
   const streamMedia = async () => {
@@ -84,7 +90,7 @@ const SignDetectorBody = (props: {
     return promise;
   };
 
-  const predictMedia = () => {
+  const drawLandmarks = (landmarks: NormalizedLandmark[][]) => {
     if (!videoRef || !canvasRef) {
       throw new Error("비디오 요소를 찾을 수 없습니다.");
     }
@@ -94,8 +100,6 @@ const SignDetectorBody = (props: {
     canvasRef.width = videoRef.videoWidth;
     canvasRef.height = videoRef.videoHeight;
 
-    const time = performance.now();
-    const { landmarks } = handLandmarker.detectForVideo(videoRef!, time);
     const context = canvasRef.getContext("2d")!;
     context.save();
     context.clearRect(0, 0, canvasRef.width, canvasRef.height);
@@ -108,6 +112,18 @@ const SignDetectorBody = (props: {
       drawingUtils.drawLandmarks(landmark, { color: "#ff7f00", lineWidth: 2 });
     });
     context.restore();
+  };
+
+  const predictMedia = () => {
+    if (!videoRef) {
+      throw new Error("비디오 요소를 찾을 수 없습니다.");
+    }
+    const time = performance.now();
+    const { landmarks } = handLandmarker.detectForVideo(videoRef!, time);
+
+    drawLandmarks(landmarks);
+    socket.emit("predict", landmarks);
+
     if (typeof animationFrame == "number") {
       animationFrame = requestAnimationFrame(predictMedia);
     }
@@ -115,6 +131,14 @@ const SignDetectorBody = (props: {
 
   const initialize = async () => {
     try {
+      socket = io(import.meta.env.VITE_SONISORI_AI_API_URL, {
+        transports: ["websocket"],
+      });
+      socket.on("prediction_result", (data: { prediction: string[] }) => {
+        setWords(data.prediction.map((text) => ({ text })));
+      });
+      socket.on("error", setHelp);
+
       await streamMedia();
       await handLandmarker.initialize();
       if (animationFrame == null) {
@@ -134,6 +158,7 @@ const SignDetectorBody = (props: {
         animationFrame = null;
       }
       handLandmarker.close();
+      socket.disconnect();
       stream?.getTracks().forEach((track) => track.stop());
       setLoaded(false);
     } catch (error) {
