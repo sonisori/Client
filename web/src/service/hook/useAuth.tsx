@@ -80,9 +80,5 @@ export const useAuth = (
     });
   }
 
-  createEffect(() => {
-    console.log(auth(), "message");
-  });
-
   return { auth, loadUser, logout };
 };
