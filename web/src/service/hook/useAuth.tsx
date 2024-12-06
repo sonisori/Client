@@ -1,14 +1,17 @@
-import { useNavigate } from "@solidjs/router";
+import { useLocation, useNavigate } from "@solidjs/router";
 import {
   createContext,
   createEffect,
   createSignal,
   JSXElement,
+  on,
   useContext,
 } from "solid-js";
 
 import { Auth } from "../type/auth";
 import { client } from "../util/api";
+
+const REDIRECT = "redirect";
 
 const useCreateAuth = () => {
   const [auth, setAuth] = createSignal<Auth | null>(null);
@@ -64,20 +67,31 @@ export const useAuth = (
 ) => {
   const { auth, loadUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (options.goToApp) {
-    createEffect(() => {
-      if (auth()) {
-        navigate("/app/translator");
-      }
-    });
+    createEffect(
+      on(auth, (auth) => {
+        if (auth) {
+          navigate(location.query[REDIRECT] ?? "/app/translator", {
+            replace: true,
+          });
+        }
+      }),
+    );
   }
   if (options.goToWeb) {
-    createEffect(() => {
-      if (!auth()) {
-        navigate("/web/sign-in");
-      }
-    });
+    createEffect(
+      on(auth, (auth) => {
+        if (!auth) {
+          navigate(
+            location.query[REDIRECT] ??
+              `/web/sign-in?${REDIRECT}=${encodeURIComponent(location.pathname)}`,
+            { replace: true },
+          );
+        }
+      }),
+    );
   }
 
   return { auth, loadUser, logout };

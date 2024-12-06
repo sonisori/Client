@@ -33,7 +33,6 @@ const LoginError = () => (
 
 export const SignIn = () => {
   let passwordField!: HTMLInputElement;
-  let loginForm!: HTMLFormElement;
 
   const { loadUser } = useAuth({ goToApp: true });
   const { loading, wrap } = useAsync();
@@ -53,7 +52,7 @@ export const SignIn = () => {
             passwordField.focus();
             return;
           }
-          const form = new FormData(loginForm);
+          const form = new FormData(e.currentTarget);
           wrap(() =>
             client
               .post("api/auth/login", { json: Object.fromEntries(form) })
@@ -62,7 +61,6 @@ export const SignIn = () => {
               .catch(() => void setError(true)),
           );
         }}
-        ref={loginForm}
       >
         <Show when={error()}>
           <LoginError />
