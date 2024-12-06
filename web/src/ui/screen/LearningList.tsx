@@ -1,5 +1,6 @@
-import { For, Match, Switch } from "solid-js";
+import { createResource, For, Match, Show, Switch } from "solid-js";
 
+import { client } from "../../service/util/api";
 import { Progress } from "../component/base/Progress";
 import { Check } from "../icon/Check";
 
@@ -41,43 +42,20 @@ const Card = (props: {
 };
 
 export const LearningList = () => {
-  const cards = [
-    {
-      id: 1,
-      title: "학교에서 만났을 때",
-      description: "새 학기 수어를 사용하는 친구에게 먼저 말을 걸어보세요",
-      progress: null,
-      total: 10,
-    },
-    {
-      id: 2,
-      title: "학교에서 만났을 때",
-      description: "새 학기 수어를 사용하는 친구에게 먼저 말을 걸어보세요",
-      progress: 8,
-      total: 10,
-    },
-    {
-      id: 3,
-      title: "학교에서 만났을 때",
-      description: "새 학기 수어를 사용하는 친구에게 먼저 말을 걸어보세요",
-      progress: 7,
-      total: 10,
-    },
-    {
-      id: 3,
-      title: "학교에서 만났을 때",
-      description: "새 학기 수어를 사용하는 친구에게 먼저 말을 걸어보세요",
-      progress: null,
-      total: 10,
-    },
-    {
-      id: 3,
-      title: "학교에서 만났을 때",
-      description: "새 학기 수어를 사용하는 친구에게 먼저 말을 걸어보세요",
-      progress: 10,
-      total: 10,
-    },
-  ];
+  const [data] = createResource(() =>
+    client.get("api/topics").json<
+      {
+        contents: string;
+        correctCount: number;
+        difficulty: "EASY" | "HARD" | "MEDIUM";
+        id: number;
+        isCompleted: boolean;
+        title: string;
+        totalQuizzes: number;
+      }[]
+    >(),
+  );
+
   return (
     <div class="fixed inset-y-0 left-72 right-0 overflow-y-scroll">
       <div class="px-20 py-12">
@@ -85,9 +63,21 @@ export const LearningList = () => {
           <h1 class="text-xl font-semibold">수어 퀴즈</h1>
           <p class="text text-muted-foreground">수어로 문장 만들어보기</p>
         </div>
-        <div class="grid grid-cols-2 gap-3 pt-10">
-          <For each={cards}>{(card) => <Card {...card} />}</For>
-        </div>
+        <Show when={data()}>
+          <div class="grid grid-cols-2 gap-3 pt-10 duration-500 animate-in fade-in slide-in-from-bottom-5">
+            <For each={data()}>
+              {(card) => (
+                <Card
+                  description={card.contents}
+                  id={card.id}
+                  progress={card.correctCount}
+                  title={card.title}
+                  total={card.totalQuizzes}
+                />
+              )}
+            </For>
+          </div>
+        </Show>
       </div>
     </div>
   );
