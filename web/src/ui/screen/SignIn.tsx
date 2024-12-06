@@ -35,7 +35,7 @@ export const SignIn = () => {
   let passwordField!: HTMLInputElement;
   let loginForm!: HTMLFormElement;
 
-  useAuth({ goToApp: true });
+  const { loadUser } = useAuth({ goToApp: true });
   const { loading, wrap } = useAsync();
 
   const [showPassword, setShowPassword] = createSignal(false);
@@ -58,7 +58,7 @@ export const SignIn = () => {
             client
               .post("api/auth/login", { json: Object.fromEntries(form) })
               .json()
-              .then(console.log)
+              .then(() => loadUser())
               .catch(() => void setError(true)),
           );
         }}

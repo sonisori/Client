@@ -34,7 +34,7 @@ export const SignUp = () => {
   let passwordField!: HTMLInputElement;
   let loginForm!: HTMLFormElement;
 
-  useAuth({ goToApp: true });
+  const { loadUser } = useAuth({ goToApp: true });
 
   const { loading, wrap } = useAsync();
 
@@ -54,11 +54,13 @@ export const SignUp = () => {
             return;
           }
           const form = new FormData(loginForm);
+          const json = Object.fromEntries(form);
           wrap(() =>
             client
-              .post("api/auth/signup", { json: Object.fromEntries(form) })
+              .post("api/auth/signup", { json })
               .json()
-              .then(console.log)
+              .then(() => client.post("api/auth/login", { json }))
+              .then(() => loadUser())
               .catch((error: HTTPError) => {
                 switch (error.response.status) {
                   case 409:

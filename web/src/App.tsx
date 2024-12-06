@@ -1,5 +1,6 @@
 import { Router } from "@solidjs/router";
 
+import { AuthProvider } from "./service/hook/useAuth";
 import { LogoLayout } from "./ui/layout/LogoLayout";
 import { MenuLayout } from "./ui/layout/MenuLayout";
 import { ViewportLayout } from "./ui/layout/ViewportLayout";
@@ -21,7 +22,11 @@ export const App = () => {
       <Router>
         {[
           {
-            component: (props) => <Splash children={props.children} />,
+            component: (props) => (
+              <AuthProvider>
+                <Splash children={props.children} />
+              </AuthProvider>
+            ),
             children: [
               {
                 path: "/",
