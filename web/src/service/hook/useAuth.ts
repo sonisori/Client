@@ -7,6 +7,9 @@ import { client } from "../util/api";
 const [auth, setAuth] = createSignal<Auth | null>(null);
 
 export const useAuth = (
+  /**
+   * 페이지 단위 컴포넌트에서만 호출한다.
+   */
   options: {
     /**
      * 로그인이 된 경우, 앱으로 이동합니다.
