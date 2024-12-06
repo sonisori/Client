@@ -2,6 +2,7 @@ import { HTTPError } from "ky";
 import { createSignal, Show } from "solid-js";
 
 import { useAsync } from "../../service/hook/useAsync";
+import { useAuth } from "../../service/hook/useAuth";
 import { client } from "../../service/util/api";
 import { cn } from "../../service/util/cn";
 import { Alert, AlertDescription, AlertTitle } from "../component/base/Alert";
@@ -32,6 +33,8 @@ const LoginError = (props: { message: string }) => (
 export const SignUp = () => {
   let passwordField!: HTMLInputElement;
   let loginForm!: HTMLFormElement;
+
+  useAuth({ goToApp: true });
 
   const { loading, wrap } = useAsync();
 

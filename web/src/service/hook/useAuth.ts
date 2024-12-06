@@ -1,23 +1,54 @@
-import { createSignal } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { createEffect, createSignal } from "solid-js";
 
 import { Auth } from "../type/auth";
 import { client } from "../util/api";
 
-export const useAuth = () => {
-  const [auth, setAuth] = createSignal<Auth | null>(null);
+const [auth, setAuth] = createSignal<Auth | null>(null);
+
+export const useAuth = (
+  options: {
+    /**
+     * 로그인이 된 경우, 앱으로 이동합니다.
+     */
+    goToApp?: boolean;
+    /**
+     * 로그인이 안된 경우, 웹으로 이동합니다.
+     */
+    goToWeb?: boolean;
+  } = {
+    goToApp: false,
+    goToWeb: false,
+  },
+) => {
+  const navigate = useNavigate();
 
   const loadUser = async () => {
-    setAuth({
-      user: await client
-        .get("api/users/me")
-        .json<{ name: string; socialType: string }>(),
-    });
+    const user = await client
+      .get("api/users/me")
+      .json<{ name: string; socialType: string }>();
+    setAuth({ user });
   };
 
   const logout = async () => {
     await client.delete("api/auth/logout");
     setAuth(null);
   };
+
+  if (options.goToApp) {
+    createEffect(() => {
+      if (auth()) {
+        navigate("/app/translator");
+      }
+    });
+  }
+  if (options.goToWeb) {
+    createEffect(() => {
+      if (!auth()) {
+        navigate("/web/sign-in");
+      }
+    });
+  }
 
   return {
     auth,
