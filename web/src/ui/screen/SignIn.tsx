@@ -1,6 +1,7 @@
 import { createSignal, Show } from "solid-js";
 
 import { useAsync } from "../../service/hook/useAsync";
+import { useAuth } from "../../service/hook/useAuth";
 import { client } from "../../service/util/api";
 import { cn } from "../../service/util/cn";
 import { Alert, AlertDescription, AlertTitle } from "../component/base/Alert";
@@ -34,6 +35,7 @@ export const SignIn = () => {
   let passwordField!: HTMLInputElement;
   let loginForm!: HTMLFormElement;
 
+  const { loadUser } = useAuth({ goToApp: true });
   const { loading, wrap } = useAsync();
 
   const [showPassword, setShowPassword] = createSignal(false);
@@ -56,7 +58,7 @@ export const SignIn = () => {
             client
               .post("api/auth/login", { json: Object.fromEntries(form) })
               .json()
-              .then(console.log)
+              .then(() => loadUser())
               .catch(() => void setError(true)),
           );
         }}
