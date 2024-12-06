@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { createResource, For } from "solid-js";
+import { createResource, For, Show } from "solid-js";
 
 import { useAuth } from "../../service/hook/useAuth";
 import { client } from "../../service/util/api";
@@ -28,7 +28,7 @@ export const DictionaryList = () => {
           <p class="text text-muted-foreground">AI와 함께 배우는 수어</p>
         </div>
         <div class="pl-5 pt-10">
-          <div class="mb-10 rounded-lg bg-gray-50 p-5">
+          <div class="mb-10 rounded-lg bg-gray-50 p-5 duration-500 animate-in fade-in slide-in-from-bottom-5">
             <p class="mb-3 font-medium text-gray-900">
               수어•지문자•지숫자의 설명에 사용한 손가락의 번호
             </p>
@@ -41,30 +41,32 @@ export const DictionaryList = () => {
               </p>
             </div>
           </div>
-          <Table class="w-full">
-            <TableCaption>사용 가능한 수어 모음입니다.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead style={{ width: "64px" }}>Id</TableHead>
-                <TableHead>단어</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <For each={data()}>
-                {(word) => (
-                  <TableRow
-                    class="cursor-pointer"
-                    onClick={() => {
-                      navigate(`/app/dictionary/${word.id}`);
-                    }}
-                  >
-                    <TableCell>{word.id}</TableCell>
-                    <TableCell>{word.word}</TableCell>
-                  </TableRow>
-                )}
-              </For>
-            </TableBody>
-          </Table>
+          <Show when={data()}>
+            <Table class="w-full duration-500 animate-in fade-in slide-in-from-bottom-5">
+              <TableCaption>사용 가능한 수어 모음입니다.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead style={{ width: "64px" }}>Id</TableHead>
+                  <TableHead>단어</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <For each={data()}>
+                  {(word) => (
+                    <TableRow
+                      class="cursor-pointer"
+                      onClick={() => {
+                        navigate(`/app/dictionary/${word.id}`);
+                      }}
+                    >
+                      <TableCell>{word.id}</TableCell>
+                      <TableCell>{word.word}</TableCell>
+                    </TableRow>
+                  )}
+                </For>
+              </TableBody>
+            </Table>
+          </Show>
         </div>
       </div>
     </div>
