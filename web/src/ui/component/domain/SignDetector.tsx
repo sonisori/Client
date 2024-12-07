@@ -18,7 +18,6 @@ import {
   Show,
 } from "solid-js";
 
-import { useAsync } from "../../../service/hook/useAsync";
 import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
@@ -45,6 +44,25 @@ const SIGN_PHRASE_TYPE_API_ENDPOINT_MAP: Record<SignPhraseType, string> = {
   감탄문: "/makeSentence2",
 };
 
+export const createSentence = async (sign: {
+  signPhraseType: SignPhraseType;
+  words: string[];
+}) => {
+  const phrase = await ky
+    .post(
+      `${import.meta.env.VITE_SONISORI_AI_API_URL}${SIGN_PHRASE_TYPE_API_ENDPOINT_MAP[sign.signPhraseType]}`,
+      {
+        json: { prediction: sign.words },
+      },
+    )
+    .json<{ prediction_sentence: string }>()
+    .then(
+      (response) => response.prediction_sentence,
+      () => "다시 시도해주세요.",
+    );
+  return phrase;
+};
+
 const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
   const { isMounted, isVisible } = createPresence(() => props.open, {
     transitionDuration: TRANSITION_DURATION,
@@ -65,15 +83,15 @@ const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
 };
 
 const SignDetectorBody = (props: {
+  disabled?: boolean;
   key?: number;
   onCancel?: () => void;
-  onDone?: (phrase: string) => void;
+  onDone?: (words: string[]) => void;
   signPhraseType: SignPhraseType;
 }) => {
   const [loaded, setLoaded] = createSignal(false);
   const [words, setWords] = createSignal<Word[]>([]);
   const [help, setHelp] = createSignal<null | string>(null);
-  const { loading, wrap } = useAsync();
 
   let canvasRef!: HTMLCanvasElement;
   let videoRef!: HTMLVideoElement;
@@ -291,25 +309,9 @@ const SignDetectorBody = (props: {
             <Show when={props.onDone}>
               {(onDone) => (
                 <Button
-                  disabled={loading() || words().length === 0}
+                  disabled={props.disabled || words().length === 0}
                   onClick={() => {
-                    wrap(async () => {
-                      const phrase = await ky
-                        .post(
-                          `${import.meta.env.VITE_SONISORI_AI_API_URL}${SIGN_PHRASE_TYPE_API_ENDPOINT_MAP[props.signPhraseType]}`,
-                          {
-                            json: {
-                              prediction: words().map((word) => word.text),
-                            },
-                          },
-                        )
-                        .json<{ prediction_sentence: string }>()
-                        .then(
-                          (response) => response.prediction_sentence,
-                          () => "다시 시도해주세요.",
-                        );
-                      onDone()(phrase);
-                    });
+                    onDone()(words().map((word) => word.text));
                   }}
                   size="sm"
                 >
