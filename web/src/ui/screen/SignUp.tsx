@@ -32,7 +32,6 @@ const LoginError = (props: { message: string }) => (
 
 export const SignUp = () => {
   let passwordField!: HTMLInputElement;
-  let loginForm!: HTMLFormElement;
 
   const { loadUser } = useAuth({ goToApp: true });
 
@@ -53,7 +52,7 @@ export const SignUp = () => {
             passwordField.focus();
             return;
           }
-          const form = new FormData(loginForm);
+          const form = new FormData(e.currentTarget);
           const json = Object.fromEntries(form);
           wrap(() =>
             client
@@ -73,7 +72,6 @@ export const SignUp = () => {
               }),
           );
         }}
-        ref={loginForm}
       >
         <Show when={error()}>
           {(error) => <LoginError message={error()} />}
