@@ -5,6 +5,7 @@ import {
 } from "@mediapipe/tasks-vision";
 import { createEventListener } from "@solid-primitives/event-listener";
 import { createPresence } from "@solid-primitives/presence";
+import ky from "ky";
 import { io, Socket } from "socket.io-client";
 import {
   createEffect,
@@ -17,6 +18,7 @@ import {
   Show,
 } from "solid-js";
 
+import { useAsync } from "../../../service/hook/useAsync";
 import { SignPhraseType } from "../../../service/type/phrase";
 import { Word } from "../../../service/type/word";
 import { cn } from "../../../service/util/cn";
@@ -36,6 +38,12 @@ import { ScrollArea } from "../base/ScrollArea";
 import { Dropdown } from "../Dropdown";
 
 const TRANSITION_DURATION = 200;
+
+const SIGN_PHRASE_TYPE_API_ENDPOINT_MAP: Record<SignPhraseType, string> = {
+  평서문: "/makeSentence0",
+  의문문: "/makeSentence1",
+  감탄문: "/makeSentence2",
+};
 
 const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
   const { isMounted, isVisible } = createPresence(() => props.open, {
@@ -59,12 +67,13 @@ const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
 const SignDetectorBody = (props: {
   key?: number;
   onCancel?: () => void;
-  onDone?: () => void;
+  onDone?: (phrase: string) => void;
   signPhraseType: SignPhraseType;
 }) => {
   const [loaded, setLoaded] = createSignal(false);
   const [words, setWords] = createSignal<Word[]>([]);
   const [help, setHelp] = createSignal<null | string>(null);
+  const { loading, wrap } = useAsync();
 
   let canvasRef!: HTMLCanvasElement;
   let videoRef!: HTMLVideoElement;
@@ -137,7 +146,7 @@ const SignDetectorBody = (props: {
       socket.on("prediction_result", (data: { appended: string }) => {
         setWords((prev) => [...prev, { text: data.appended }]);
       });
-      socket.on("error", setHelp);
+      socket.on("error", (message) => setHelp(JSON.stringify(message)));
 
       await streamMedia();
       await handLandmarker.initialize();
@@ -197,13 +206,15 @@ const SignDetectorBody = (props: {
           />
           <canvas
             class="absolute left-0 top-0"
-            onClick={() => setWords((words) => [...words, { text: "테스트" }])}
             ref={canvasRef}
             style={{ transform: "rotateY(180deg)" }}
           />
           <Show when={loaded()}>
             <div
               class="duration-[1500ms] absolute inset-0 animate-out fade-out-0 fill-mode-forwards"
+              onClick={() =>
+                setWords((words) => [...words, { text: "테스트" }])
+              }
               style={{ "animation-delay": "3000ms" }}
             >
               <img
@@ -280,8 +291,25 @@ const SignDetectorBody = (props: {
             <Show when={props.onDone}>
               {(onDone) => (
                 <Button
+                  disabled={loading() || words().length === 0}
                   onClick={() => {
-                    onDone()();
+                    wrap(async () => {
+                      const phrase = await ky
+                        .post(
+                          `${import.meta.env.VITE_SONISORI_AI_API_URL}${SIGN_PHRASE_TYPE_API_ENDPOINT_MAP[props.signPhraseType]}`,
+                          {
+                            json: {
+                              prediction: words().map((word) => word.text),
+                            },
+                          },
+                        )
+                        .json<{ prediction_sentence: string }>()
+                        .then(
+                          (response) => response.prediction_sentence,
+                          () => "다시 시도해주세요.",
+                        );
+                      onDone()(phrase);
+                    });
                   }}
                   size="sm"
                 >
