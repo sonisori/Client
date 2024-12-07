@@ -7,7 +7,7 @@ import { cn } from "../../service/util/cn";
 import { Button } from "../component/base/Button";
 import { ScrollArea } from "../component/base/ScrollAreaV2";
 import { PhraseBubble } from "../component/domain/PhraseBubble";
-import { SignDetector } from "../component/domain/SignDetector";
+import { createSentence, SignDetector } from "../component/domain/SignDetector";
 import { Dropdown } from "../component/Dropdown";
 import { translatorScreenMachine } from "./Translator.machine";
 
@@ -34,6 +34,7 @@ export const Translator = () => {
 
   const [phrases, setPhrases] = createSignal<Phrase[]>([]);
   const [viewport, setViewport] = createSignal<HTMLElement>();
+  const [loading, setLoading] = createSignal(false);
 
   createEffect<typeof snapshot.value>((prevState) => {
     if (!snapshot.matches(prevState)) {
@@ -58,19 +59,30 @@ export const Translator = () => {
   return (
     <div class="fixed inset-y-0 left-72 right-0">
       <SignDetector
+        disabled={loading()}
         onCancel={() => {
           send({ type: "DONE_SIGN" });
         }}
-        onDone={(phrase) => {
-          setPhrases((phrases) => [
-            ...phrases,
-            {
-              author: "left",
-              text: phrase,
-              type: "sign",
-            },
-          ]);
-          send({ type: "DONE_SIGN" });
+        onDone={(words) => {
+          setLoading(true);
+          createSentence({
+            signPhraseType: snapshot.context.signPhraseType!,
+            words,
+          })
+            .then((phrase) => {
+              setPhrases((phrases) => [
+                ...phrases,
+                {
+                  author: "left",
+                  text: phrase,
+                  type: "sign",
+                },
+              ]);
+              send({ type: "DONE_SIGN" });
+            })
+            .finally(() => {
+              setLoading(false);
+            });
         }}
         open={snapshot.matches("inputting left sign")}
         signPhraseType={snapshot.context.signPhraseType!}
