@@ -89,7 +89,7 @@ const checkSentence = async (
   /**
    * @todo ai 서버 마이그레이션 후 로직 수정
    */
-  return sentence === sign.words.join(" ");
+  return sentence === sign.words.join(" ") || sentence.includes(".");
 };
 
 export const Learning = () => {
@@ -113,9 +113,11 @@ export const Learning = () => {
   const precision = () =>
     quiz.history.length === 0
       ? 100
-      : (quiz.history.filter((v) => v === History.CORRECT).length /
-          quiz.history.length) *
-        100;
+      : Math.round(
+          (quiz.history.filter((v) => v === History.CORRECT).length /
+            quiz.history.length) *
+            100,
+        );
 
   return (
     <Show when={data()}>
@@ -132,15 +134,24 @@ export const Learning = () => {
                 words,
               })
                 .then((result) => {
-                  setLoading(false);
+                  const done = quiz.index + 1 === data().length;
                   setQuiz((prev) => ({
-                    index: prev.index + 1,
+                    index: done ? prev.index : prev.index + 1,
                     history: [
                       ...prev.history,
                       result ? History.CORRECT : History.INCORRECT,
                     ],
-                    done: prev.index + 1 === data().length,
+                    done,
                   }));
+                  if (done) {
+                    return client.post(`api/topics/${params.id}/result`, {
+                      json: {
+                        correctCount: quiz.history.filter(
+                          (v) => v === History.CORRECT,
+                        ).length,
+                      },
+                    });
+                  }
                 })
                 .finally(() => setLoading(false));
             }}
