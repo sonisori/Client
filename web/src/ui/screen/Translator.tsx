@@ -61,12 +61,12 @@ export const Translator = () => {
         onCancel={() => {
           send({ type: "DONE_SIGN" });
         }}
-        onDone={() => {
+        onDone={(phrase) => {
           setPhrases((phrases) => [
             ...phrases,
             {
               author: "left",
-              text: `수어로 인식한 문장이 표시됩니다. ${phrases.length + 1}`,
+              text: phrase,
               type: "sign",
             },
           ]);
