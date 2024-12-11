@@ -103,7 +103,7 @@ const SignDetectorBody = (props: {
 
   const send = throttle((landmarks: NormalizedLandmark[][]) => {
     socket.emit("predict", landmarks);
-  });
+  }, 200);
 
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
