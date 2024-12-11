@@ -51,7 +51,7 @@ export const createSentence = async (sign: {
 }) => {
   const phrase = await ky
     .post(
-      `${import.meta.env.VITE_SONISORI_AI_API_URL}${SIGN_PHRASE_TYPE_API_ENDPOINT_MAP[sign.signPhraseType]}`,
+      `${import.meta.env.VITE_SONISORI_AI_REST_URL}${SIGN_PHRASE_TYPE_API_ENDPOINT_MAP[sign.signPhraseType]}`,
       {
         json: { prediction: sign.words },
       },
@@ -163,7 +163,7 @@ const SignDetectorBody = (props: {
 
   const initialize = async () => {
     try {
-      socket = io(import.meta.env.VITE_SONISORI_AI_API_URL, {
+      socket = io(import.meta.env.VITE_SONISORI_AI_SOCKET_URL, {
         transports: ["websocket"],
       });
       socket.on("prediction_result", (data: { appended: string }) => {

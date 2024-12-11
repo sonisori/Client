@@ -93,7 +93,7 @@ export const SignIn = () => {
         <Button
           as="a"
           class="block w-full"
-          href={`${import.meta.env.VITE_SONISORI_API_URL}/oauth2/authorization/naver`}
+          href={`${import.meta.env.VITE_SONISORI_BFF_API_URL}/oauth2/authorization/naver`}
           style={{ "background-color": "#1EC800", color: "#fff" }}
           variant="secondary"
         >
@@ -102,7 +102,7 @@ export const SignIn = () => {
         <Button
           as="a"
           class="block w-full"
-          href={`${import.meta.env.VITE_SONISORI_API_URL}/oauth2/authorization/kakao`}
+          href={`${import.meta.env.VITE_SONISORI_BFF_API_URL}/oauth2/authorization/kakao`}
           style={{ "background-color": "#FFEB00", color: "#000" }}
           variant="secondary"
         >
