@@ -5,6 +5,7 @@ import {
 } from "@mediapipe/tasks-vision";
 import { createEventListener } from "@solid-primitives/event-listener";
 import { createPresence } from "@solid-primitives/presence";
+import { throttle } from "@solid-primitives/scheduled";
 import ky from "ky";
 import { io, Socket } from "socket.io-client";
 import {
@@ -50,7 +51,7 @@ export const createSentence = async (sign: {
 }) => {
   const phrase = await ky
     .post(
-      `${import.meta.env.VITE_SONISORI_AI_API_URL}${SIGN_PHRASE_TYPE_API_ENDPOINT_MAP[sign.signPhraseType]}`,
+      `${import.meta.env.VITE_SONISORI_AI_REST_URL}${SIGN_PHRASE_TYPE_API_ENDPOINT_MAP[sign.signPhraseType]}`,
       {
         json: { prediction: sign.words },
       },
@@ -99,6 +100,10 @@ const SignDetectorBody = (props: {
   let animationFrame: null | number = null;
   let socket: Socket;
   const task = new Task();
+
+  const send = throttle((landmarks: NormalizedLandmark[][]) => {
+    socket.emit("predict", landmarks);
+  }, 200);
 
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -149,7 +154,7 @@ const SignDetectorBody = (props: {
     const { landmarks } = handLandmarker.detectForVideo(videoRef!, time);
 
     drawLandmarks(landmarks);
-    socket.emit("predict", landmarks);
+    send(landmarks);
 
     if (typeof animationFrame == "number") {
       animationFrame = requestAnimationFrame(predictMedia);
@@ -158,7 +163,7 @@ const SignDetectorBody = (props: {
 
   const initialize = async () => {
     try {
-      socket = io(import.meta.env.VITE_SONISORI_AI_API_URL, {
+      socket = io(import.meta.env.VITE_SONISORI_AI_SOCKET_URL, {
         transports: ["websocket"],
       });
       socket.on("prediction_result", (data: { appended: string }) => {
@@ -185,6 +190,7 @@ const SignDetectorBody = (props: {
         animationFrame = null;
       }
       handLandmarker.close();
+      send.clear();
       socket.disconnect();
       stream?.getTracks().forEach((track) => track.stop());
       setLoaded(false);

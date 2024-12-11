@@ -6,15 +6,16 @@ export default defineConfig({
   plugins: [devtools({ autoname: true }), solid()],
   server: {
     proxy: {
-      "^/api/.*": {
+      "^/bff/.*": {
         target: "https://api.sonisori.site",
         changeOrigin: true,
         cookieDomainRewrite: "localhost",
+        rewrite: (path) => path.replace(/^\/bff/, ""),
       },
-      "^:5002/.*": {
-        target: "ws://api.sonisori.site:5002",
-        ws: true,
+      "^/ai-rest/.*": {
+        target: "https://ai.sonisori.site",
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ai-rest/, ""),
       },
     },
   },

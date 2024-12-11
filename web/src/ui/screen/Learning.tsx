@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
+import ky from "ky";
 import {
   createEffect,
   createResource,
@@ -9,17 +10,16 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { SignPhraseType } from "../../service/type/phrase";
 import { client } from "../../service/util/api";
 import { cn } from "../../service/util/cn";
 import { Button } from "../component/base/Button";
 import { Progress } from "../component/base/Progress";
 import { SignDetector } from "../component/domain/SignDetector";
 
-enum History {
-  CORRECT,
-  INCORRECT,
-  SKIP,
+enum Evaluated {
+  CORRECT = 1,
+  INCORRECT = 0,
+  UNKNOWN = -1,
 }
 
 const ProgressStatstics = (props: {
@@ -82,20 +82,23 @@ const TimerStatstics = (props: {
   );
 };
 
-const checkSentence = async (
-  sentence: string,
-  sign: { phraseType: SignPhraseType; words: string[] },
-) => {
-  /**
-   * @todo ai 서버 마이그레이션 후 로직 수정
-   */
-  return sentence === sign.words.join(" ") || sentence.includes(".");
+const checkSentence = async (quizIndex: number, sign: { words: string[] }) => {
+  const phrase = await ky
+    .post(`${import.meta.env.VITE_SONISORI_AI_REST_URL}/evaluateMeaning`, {
+      json: { prediction: sign.words, quizIndex },
+    })
+    .json<Evaluated>()
+    .then(
+      (response) => response,
+      () => Evaluated.UNKNOWN,
+    );
+  return phrase;
 };
 
 export const Learning = () => {
   const [quiz, setQuiz] = createStore({
     index: 0,
-    history: [] as History[],
+    history: [] as Evaluated[],
     done: false,
   });
 
@@ -114,7 +117,7 @@ export const Learning = () => {
     quiz.history.length === 0
       ? 100
       : Math.round(
-          (quiz.history.filter((v) => v === History.CORRECT).length /
+          (quiz.history.filter((v) => v === Evaluated.CORRECT).length /
             quiz.history.length) *
             100,
         );
@@ -129,25 +132,19 @@ export const Learning = () => {
             onDone={(words) => {
               if (loading()) return;
               setLoading(true);
-              checkSentence(data()[quiz.index].sentence, {
-                phraseType: "평서문",
-                words,
-              })
+              checkSentence(data()[quiz.index].quizId, { words })
                 .then((result) => {
                   const done = quiz.index + 1 === data().length;
                   setQuiz((prev) => ({
                     index: done ? prev.index : prev.index + 1,
-                    history: [
-                      ...prev.history,
-                      result ? History.CORRECT : History.INCORRECT,
-                    ],
+                    history: [...prev.history, result],
                     done,
                   }));
                   if (done) {
                     return client.post(`api/topics/${params.id}/result`, {
                       json: {
                         correctCount: quiz.history.filter(
-                          (v) => v === History.CORRECT,
+                          (v) => v === Evaluated.CORRECT,
                         ).length,
                       },
                     });
