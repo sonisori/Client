@@ -103,7 +103,7 @@ const SignDetectorBody = (props: {
 
   const send = throttle((landmarks: NormalizedLandmark[][]) => {
     socket.emit("predict", landmarks);
-  }, 200);
+  }, 100);
 
   const streamMedia = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) {
@@ -166,8 +166,11 @@ const SignDetectorBody = (props: {
       socket = io(import.meta.env.VITE_SONISORI_AI_SOCKET_URL, {
         transports: ["websocket"],
       });
-      socket.on("prediction_result", (data: { appended: string }) => {
-        setWords((prev) => [...prev, { text: data.appended }]);
+      socket.on("prediction_result", (data: { prediction: string[] }) => {
+        const appended = data.prediction.at(-1);
+        if (appended) {
+          setWords((prev) => [...prev, { text: appended }]);
+        }
       });
       socket.on("error", (message) => setHelp(JSON.stringify(message)));
 
