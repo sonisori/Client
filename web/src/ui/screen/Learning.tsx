@@ -17,9 +17,9 @@ import { Progress } from "../component/base/Progress";
 import { SignDetector } from "../component/domain/SignDetector";
 
 enum Evaluated {
-  CORRECT = 1,
-  INCORRECT = 0,
-  UNKNOWN = -1,
+  CORRECT,
+  INCORRECT,
+  UNKNOWN,
 }
 
 const ProgressStatstics = (props: {
@@ -87,9 +87,10 @@ const checkSentence = async (quizIndex: number, sign: { words: string[] }) => {
     .post(`${import.meta.env.VITE_SONISORI_AI_REST_URL}/evaluateMeaning`, {
       json: { prediction: sign.words, quizIndex },
     })
-    .json<Evaluated>()
+    .json<{ result: "아니오" | "예" }>()
     .then(
-      (response) => response,
+      (response) =>
+        response.result === "예" ? Evaluated.CORRECT : Evaluated.INCORRECT,
       () => Evaluated.UNKNOWN,
     );
   return phrase;
