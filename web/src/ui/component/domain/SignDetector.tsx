@@ -381,6 +381,7 @@ export const SignDetector = (
   return (
     <SignDetectorRoot open={props.open}>
       <SignDetectorBody
+        disabled={props.disabled}
         key={props.key}
         onCancel={props.onCancel}
         onDone={props.onDone}
