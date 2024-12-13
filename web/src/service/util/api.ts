@@ -9,7 +9,10 @@ export const client = ky.create({
       async (request, options, response) => {
         if (response.status === 401) {
           await ky
-            .create({ prefixUrl: import.meta.env.VITE_SONISORI_BFF_API_URL })
+            .create({
+              prefixUrl: import.meta.env.VITE_SONISORI_BFF_API_URL,
+              credentials: "include",
+            })
             .get("api/reissue");
           return ky(request, options);
         }
