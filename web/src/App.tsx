@@ -1,6 +1,7 @@
 import { Router } from "@solidjs/router";
 
 import { AuthProvider } from "./service/hook/useAuth";
+import { ToastList, ToastRegion } from "./ui/component/base/Toast";
 import { LogoLayout } from "./ui/layout/LogoLayout";
 import { MenuLayout } from "./ui/layout/MenuLayout";
 import { ViewportLayout } from "./ui/layout/ViewportLayout";
@@ -84,6 +85,9 @@ export const App = () => {
           },
         ]}
       </Router>
+      <ToastRegion>
+        <ToastList />
+      </ToastRegion>
     </ViewportLayout>
   );
 };

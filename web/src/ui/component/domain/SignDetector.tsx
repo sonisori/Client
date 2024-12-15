@@ -1,3 +1,4 @@
+import { toaster } from "@kobalte/core/toast";
 import {
   DrawingUtils,
   HandLandmarker,
@@ -35,6 +36,12 @@ import {
   PopoverTrigger,
 } from "../base/Popover";
 import { ScrollArea } from "../base/ScrollArea";
+import {
+  Toast,
+  ToastContent,
+  ToastDescription,
+  ToastTitle,
+} from "../base/Toast";
 import { Dropdown } from "../Dropdown";
 
 const TRANSITION_DURATION = 200;
@@ -62,6 +69,28 @@ export const createSentence = async (sign: {
       () => "다시 시도해주세요.",
     );
   return phrase;
+};
+
+const showGuide = () => {
+  toaster.show((props) => (
+    <Toast persistent toastId={props.toastId}>
+      <ToastContent>
+        <ToastTitle>성능 안내</ToastTitle>
+        <ToastDescription class="mt-2 whitespace-pre-wrap break-keep">
+          서버 성능이슈로 쓰로틀링을 적용하여 인식 성능에 저하가 있을 수
+          있습니다. 곧 업데이트 예정입니다.{" "}
+          <a
+            class="text-blue-500"
+            href="https://github.com/sonisori"
+            referrerPolicy="no-referrer"
+            target="_blank"
+          >
+            로컬에서 테스트
+          </a>
+        </ToastDescription>
+      </ToastContent>
+    </Toast>
+  ));
 };
 
 const SignDetectorRoot = (props: { children: JSXElement; open: boolean }) => {
@@ -162,6 +191,7 @@ const SignDetectorBody = (props: {
   };
 
   const initialize = async () => {
+    showGuide();
     try {
       socket = io(import.meta.env.VITE_SONISORI_AI_SOCKET_URL, {
         transports: ["websocket"],
