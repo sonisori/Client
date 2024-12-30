@@ -13,7 +13,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/bff/, ""),
       },
       "^/ai-rest/.*": {
-        target: "https://ai.sonisori.site",
+        target: "http://localhost:5002",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ai-rest/, ""),
       },
